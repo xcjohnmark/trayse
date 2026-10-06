@@ -1,3 +1,75 @@
+@font-face {
+  font-family: 'NewBlack';
+  src: url('/assets/fonts/NewBlack_TTF/NewBlackTypeface-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'NewBlack';
+  src: url('/assets/fonts/NewBlack_TTF/NewBlackTypeface-ExtraBold.ttf') format('truetype');
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'NewBlack';
+  src: url('/assets/fonts/NewBlack_TTF/NewBlackTypeface-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Urbanist';
+  src: url('/assets/fonts/Urbanist_TTF/Urbanist-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Urbanist';
+  src: url('/assets/fonts/Urbanist_TTF/Urbanist-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Urbanist';
+  src: url('/assets/fonts/Urbanist_TTF/Urbanist-SemiBold.ttf') format('truetype');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Urbanist';
+  src: url('/assets/fonts/Urbanist_TTF/Urbanist-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Raleway';
+  src: url('/assets/fonts/Raleway_TTF/Raleway-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Raleway';
+  src: url('/assets/fonts/Raleway_TTF/Raleway-SemiBold.ttf') format('truetype');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -97,4 +169,41 @@ body {
   inset: 0 0 0 auto;
   width: 5rem;
   background: linear-gradient(to left, var(--bg), transparent);
+}
+
+/* Emil Design Engineering Guardrails & Terminal Utilities */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+.num-stat {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+/* Touch-hover guardrails: Only apply hover effects when supported */
+@media (hover: none) {
+  .hover-touch-safe:hover {
+    background-color: inherit;
+    border-color: inherit;
+    color: inherit;
+    transform: none;
+  }
+}
+
+/* Slim terminal scrollbar */
+.terminal-scroll::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+.terminal-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.terminal-scroll::-webkit-scrollbar-thumb {
+  background: #1F232F;
+  border-radius: 2px;
+}
+.terminal-scroll::-webkit-scrollbar-thumb:hover {
+  background: #2E3446;
 }

@@ -42,15 +42,10 @@ export default function Hero() {
         <footer className="w-full max-w-7xl mx-auto px-6 sm:px-10 lg:px-14 pb-8 sm:pb-12 flex flex-col md:flex-row md:items-end justify-between gap-8 sm:gap-10">
           {/* Left Column: Brand Eyebrow, Main Headline, and Social Proof */}
           <div className="max-w-2xl text-left">
-            {/* Brand Wordmark & Technical Eyebrow Badge */}
-            <div className="flex items-center gap-3 mb-2.5">
-              <span className="font-display font-extrabold text-2xl sm:text-3xl text-white tracking-[-0.02em] uppercase drop-shadow-sm">
-                TRAYSE
-              </span>
-              <span className="font-eyebrow font-semibold text-[11px] sm:text-xs tracking-[0.14em] uppercase text-[#00D688] bg-[#00D688]/10 border border-[#00D688]/25 px-2.5 py-0.5 rounded-full backdrop-blur-sm">
-                01 • Institutional Market Intelligence
-              </span>
-            </div>
+            {/* Brand Name Eyebrow in NewBlack Typeface (Title Case) */}
+            <h2 className="font-display font-bold text-xl sm:text-2xl text-white tracking-[-0.02em] mb-1.5 drop-shadow-sm">
+              Trayse
+            </h2>
 
             {/* Monumental Direction B Headline (NewBlack Display Bold) */}
             <h1 className="font-display font-bold text-[38px] sm:text-[52px] md:text-[62px] lg:text-[74px] text-white tracking-[-0.03em] leading-[0.98] mb-3.5 drop-shadow-[0_2px_16px_rgba(0,0,0,0.8)]">
