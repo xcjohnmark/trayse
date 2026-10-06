@@ -1,0 +1,15 @@
+<svg width="600" height="500" viewBox="0 0 60 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Column 1 (Left) -->
+  <rect x="0" y="0" width="20" height="10" fill="black"/>
+  <rect x="0" y="20" width="20" height="10" fill="black"/>
+  <rect x="0" y="40" width="20" height="10" fill="black"/>
+
+  <!-- Column 2 (Center) -->
+  <rect x="20" y="10" width="20" height="10" fill="black"/>
+  <rect x="20" y="30" width="20" height="10" fill="black"/>
+
+  <!-- Column 3 (Right) -->
+  <rect x="40" y="0" width="20" height="10" fill="black"/>
+  <rect x="40" y="20" width="20" height="10" fill="black"/>
+  <rect x="40" y="40" width="20" height="10" fill="black"/>
+</svg>
