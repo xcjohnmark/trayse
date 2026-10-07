@@ -21,7 +21,9 @@ import {
   ChevronDown,
   ShieldCheck,
   Activity,
+  Brain,
 } from "lucide-react";
+import { QuantStrategyHub } from "@/components/terminal/QuantStrategyHub";
 
 const CATEGORIES: (MarketCategory | "All")[] = [
   "All",
@@ -56,6 +58,7 @@ export default function TerminalMarketBrowserPage() {
 
   const [pairs, setPairs] = useState<NormalizedMarketPair[]>(INITIAL_MARKET_PAIRS);
   const [flashingPairIds, setFlashingPairIds] = useState<{ [id: string]: "up" | "down" }>({});
+  const [activeView, setActiveView] = useState<"MARKETS" | "STRATEGIES">("MARKETS");
 
   // 1. Real-time tick simulation (every 3.5s)
   useEffect(() => {
@@ -195,7 +198,46 @@ export default function TerminalMarketBrowserPage() {
         </div>
       </div>
 
-      {/* Control Toolbar */}
+      {/* View Switcher: Market Browser vs Quant Strategy Studio */}
+      <div className="flex items-center justify-between border-b border-[#1F232F] pb-2">
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setActiveView("MARKETS")}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-mono font-semibold transition-all border ${
+              activeView === "MARKETS"
+                ? "bg-[#12141C] border-[#00D688] text-[#00FFA3]"
+                : "bg-transparent border-transparent text-zinc-400 hover:text-white"
+            }`}
+          >
+            <Layers className="h-3.5 w-3.5" />
+            <span>ORDER FLOW BROWSER ({pairs.length})</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveView("STRATEGIES")}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-mono font-semibold transition-all border ${
+              activeView === "STRATEGIES"
+                ? "bg-purple-950/20 border-purple-500/50 text-purple-300"
+                : "bg-transparent border-transparent text-zinc-400 hover:text-white"
+            }`}
+          >
+            <Brain className="h-3.5 w-3.5 text-purple-400" />
+            <span>QUANT STRATEGY STUDIO (4 MODELS)</span>
+          </button>
+        </div>
+
+        <div className="text-[11px] font-mono text-zinc-500 hidden sm:block">
+          ALT+1 MARKETS • ALT+2 ARB RADAR
+        </div>
+      </div>
+
+      {activeView === "STRATEGIES" ? (
+        <QuantStrategyHub />
+      ) : (
+        <>
+          {/* Control Toolbar */}
       <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-2.5 bg-[#0C0D12] border border-[#1F232F] p-2.5 rounded-lg">
         {/* Left: Search input */}
         <div className="relative flex-1 max-w-md">
@@ -491,6 +533,8 @@ export default function TerminalMarketBrowserPage() {
           </div>
         </div>
       </div>
+        </>
+      )}
     </div>
   );
 }
