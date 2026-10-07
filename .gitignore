@@ -15,6 +15,12 @@ tmp/
 temp/
 *.tmp
 
+# Project Specifications & Internal Docs
+build/
+project-details/
+build-tools.md
+hack-mvp-plan.md
+
 # Environment Variables & Secrets
 .env
 .env*.local
