@@ -39,8 +39,8 @@ interface SpringState {
 
 export default function HeroBackground({
   bg = "#111113",
-  dotColor = "rgba(210, 225, 255, 0.08)",
-  accentDotColor = "rgba(59, 64, 214, 0.4)",
+  dotColor = "rgba(180, 200, 255, 0.055)",
+  accentDotColor = "rgba(80, 105, 255, 0.68)",
   maskSize = "min(72vw, 50rem)",
   maskUrl = "/trayse-mask.svg",
   baseGridPitch = 15,
@@ -62,7 +62,7 @@ export default function HeroBackground({
     rafId: 0,
   });
 
-  // Cursor tracking & active ripples state
+  // Cursor tracking, rest timeout & active ripples state
   const mouseRef = useRef({
     x: -2000,
     y: -2000,
@@ -71,6 +71,9 @@ export default function HeroBackground({
     lastSpawnX: -2000,
     lastSpawnY: -2000,
     lastSpawnTime: 0,
+    lastMoveTime: 0,
+    activity: 0, // 0 = resting/asleep, 1 = moving actively
+    isResting: true,
   });
 
   const ripples = useRef<Ripple[]>([]);
@@ -105,12 +108,25 @@ export default function HeroBackground({
       s.pos += s.vel * dt;
     };
 
-    // Pointer move listener across window/hero with snappy response
+    // Pointer move listener across window/hero with rest detection
     const handlePointerMove = (e: PointerEvent) => {
       if (!containerRef.current) return;
       const rect = containerRef.current.getBoundingClientRect();
       const clientX = e.clientX - rect.left;
       const clientY = e.clientY - rect.top;
+
+      const now = performance.now();
+      const distFromLastPos = Math.hypot(
+        clientX - mouseRef.current.targetX,
+        clientY - mouseRef.current.targetY
+      );
+
+      // Only count as active physical movement if displacement exceeds sub-pixel threshold
+      if (distFromLastPos > 1.8) {
+        mouseRef.current.lastMoveTime = now;
+        mouseRef.current.isResting = false;
+        mouseRef.current.activity = 1.0;
+      }
 
       mouseRef.current.targetX = clientX;
       mouseRef.current.targetY = clientY;
@@ -119,7 +135,7 @@ export default function HeroBackground({
       const normX = (clientX / rect.width) * 2 - 1;
       const normY = (clientY / rect.height) * 2 - 1;
 
-      // Snappy 3D tilt tracking
+      // 3D tilt tracking
       const maxTilt = 4.0;
       springs.current.rotX.target = -normY * maxTilt;
       springs.current.rotY.target = normX * maxTilt;
@@ -127,24 +143,25 @@ export default function HeroBackground({
       springs.current.depthZ.target = 14;
       springs.current.isHovering = true;
 
-      // RIPPLE GENERATION: Snappy, natural wave spawning
-      const now = performance.now();
-      const distFromLast = Math.hypot(
+      // RIPPLE GENERATION:
+      // STRICT RULE: Ripples ONLY spawn while the cursor is actively moving across space!
+      // If cursor is resting or lingering at a spot, distFromLastSpawn will be small (< 28),
+      // strictly preventing any new ripples from spawning.
+      const distFromLastSpawn = Math.hypot(
         clientX - mouseRef.current.lastSpawnX,
         clientY - mouseRef.current.lastSpawnY
       );
 
-      // Spawn every 28px or 80ms for fluid, continuous ripples
-      if (distFromLast > 28 || now - mouseRef.current.lastSpawnTime > 80) {
+      if (distFromLastSpawn >= 28 && now - mouseRef.current.lastSpawnTime > 65) {
         if (ripples.current.length < 10) {
           ripples.current.push({
             x: clientX,
             y: clientY,
             radius: 8,
             maxRadius: Math.min(rect.width, rect.height) * 0.45,
-            speed: 280, // Normal, snappy, natural fluid wave propagation (px/sec)
+            speed: 280, // Normal, responsive fluid wave speed (px/sec)
             intensity: 1.0,
-            decay: 1.25, // Dissipates cleanly in ~1 second
+            decay: 1.3, // Dissipates cleanly in ~1 second
           });
         }
         mouseRef.current.lastSpawnX = clientX;
@@ -160,14 +177,18 @@ export default function HeroBackground({
       const clientX = e.clientX - rect.left;
       const clientY = e.clientY - rect.top;
 
+      mouseRef.current.lastMoveTime = performance.now();
+      mouseRef.current.activity = 1.0;
+      mouseRef.current.isResting = false;
+
       ripples.current.push({
         x: clientX,
         y: clientY,
         radius: 12,
         maxRadius: Math.min(rect.width, rect.height) * 0.65,
-        speed: 380, // Fast energetic impulse
+        speed: 380, // Energetic impulse
         intensity: 1.5,
-        decay: 1.2,
+        decay: 1.25,
       });
 
       springs.current.rotX.vel += 6;
@@ -183,6 +204,8 @@ export default function HeroBackground({
 
       mouseRef.current.targetX = -2000;
       mouseRef.current.targetY = -2000;
+      mouseRef.current.activity = 0;
+      mouseRef.current.isResting = true;
     };
 
     window.addEventListener("pointermove", handlePointerMove, { passive: true });
@@ -239,17 +262,40 @@ export default function HeroBackground({
       const dt = Math.min((currentTime - sp.lastTime) / 1000, 0.032);
       sp.lastTime = currentTime;
 
-      // 1. UPDATE 3D MEMBRANE PHYSICS (Snappy, responsive spring)
-      const kTilt = sp.isHovering ? 220 : 150;
-      const cTilt = sp.isHovering ? 22 : 13;
+      const m = mouseRef.current;
+
+      // 1. REST TIMEOUT & INACTIVITY DECAY:
+      // If cursor rests at a point for > 350ms, decay activity to 0 so all glowing and ripples stop
+      const idleElapsed = currentTime - m.lastMoveTime;
+      const REST_TIMEOUT = 350; // ms of inactivity before fading out
+      const FADE_DURATION = 350; // ms duration of fade out
+
+      if (idleElapsed > REST_TIMEOUT) {
+        m.isResting = true;
+        const progress = Math.min(1, (idleElapsed - REST_TIMEOUT) / FADE_DURATION);
+        m.activity = Math.max(0, 1 - progress);
+
+        // Gently return 3D tilt to equilibrium while resting
+        if (m.activity < 0.3) {
+          springs.current.rotX.target *= 0.94;
+          springs.current.rotY.target *= 0.94;
+          springs.current.scale.target = 1.0;
+        }
+      } else {
+        m.isResting = false;
+        m.activity = Math.min(1, m.activity + dt * 10);
+      }
+
+      // 2. UPDATE 3D MEMBRANE PHYSICS
+      const kTilt = sp.isHovering && !m.isResting ? 220 : 140;
+      const cTilt = sp.isHovering && !m.isResting ? 22 : 14;
 
       stepSpring(sp.rotX, kTilt, cTilt, dt);
       stepSpring(sp.rotY, kTilt, cTilt, dt);
       stepSpring(sp.scale, 160, 16, dt);
       stepSpring(sp.depthZ, 160, 16, dt);
 
-      // Fast, instantaneous mouse tracking (no sluggish lagging)
-      const m = mouseRef.current;
+      // Instantaneous mouse tracking
       m.x += (m.targetX - m.x) * 0.45;
       m.y += (m.targetY - m.y) * 0.45;
 
@@ -264,7 +310,7 @@ export default function HeroBackground({
         )}, 1)`;
       }
 
-      // 2. UPDATE ACTIVE RIPPLES
+      // 3. UPDATE ACTIVE RIPPLES (Decay and terminate cleanly)
       const activeRipples = ripples.current;
       for (let i = activeRipples.length - 1; i >= 0; i--) {
         const rip = activeRipples[i];
@@ -281,13 +327,12 @@ export default function HeroBackground({
       if (prefersReducedMotion) return;
 
       const numRipples = activeRipples.length;
-      const mouseActive = m.x > -500;
+      const isMouseActive = m.x > -500 && m.activity > 0.01;
 
-      // Early exit if completely idle
-      if (!mouseActive && numRipples === 0) return;
+      // If mouse is resting/faded AND no active ripples remain, render nothing and sleep!
+      if (!isMouseActive && numRipples === 0) return;
 
-      // 3. SPATIAL BOUNDING BOX OPTIMIZATION
-      // Slashes iteration count from 9,000+ points down to only the active ripple zone
+      // 4. SPATIAL BOUNDING BOX OPTIMIZATION
       const pitch = baseGridPitch;
       const startX = Math.floor((width % pitch) / 2);
       const startY = Math.floor((height % pitch) / 2);
@@ -297,7 +342,7 @@ export default function HeroBackground({
       let minY = height;
       let maxY = 0;
 
-      if (mouseActive) {
+      if (isMouseActive) {
         const cursorReach = 180;
         minX = Math.min(minX, m.x - cursorReach);
         maxX = Math.max(maxX, m.x + cursorReach);
@@ -319,7 +364,7 @@ export default function HeroBackground({
       const gridMinY = Math.max(startY, Math.floor(minY / pitch) * pitch + startY);
       const gridMaxY = Math.min(height, Math.ceil(maxY / pitch) * pitch + startY);
 
-      // Batch rendering buckets to avoid costly per-dot canvas state switches
+      // Batch rendering buckets
       const cyanArcs: { x: number; y: number; r: number }[] = [];
       const blueArcs: { x: number; y: number; r: number }[] = [];
       const indigoArcs: { x: number; y: number; r: number }[] = [];
@@ -330,12 +375,13 @@ export default function HeroBackground({
           let normalX = 0;
           let normalY = 0;
 
-          if (mouseActive) {
+          // Proximity aura scales with m.activity so it smoothly fades to zero when resting
+          if (isMouseActive) {
             const dx = x - m.x;
             const dy = y - m.y;
             const dist = Math.hypot(dx, dy);
             if (dist < 180) {
-              proximity = Math.pow(1 - dist / 180, 2);
+              proximity = Math.pow(1 - dist / 180, 2) * m.activity;
               if (dist > 1) {
                 normalX = (dx / dist) * proximity;
                 normalY = (dy / dist) * proximity;
@@ -381,9 +427,9 @@ export default function HeroBackground({
         }
       }
 
-      // 4. GPU-ACCELERATED BATCH DRAW CALLS (Single draw call per color tier)
+      // 5. GPU-ACCELERATED BATCH DRAW CALLS (Tier 3: Energetic Luminous Light)
       if (indigoArcs.length > 0) {
-        ctx.fillStyle = "rgba(99, 102, 241, 0.45)";
+        ctx.fillStyle = "rgba(80, 95, 235, 0.40)";
         ctx.beginPath();
         for (let i = 0; i < indigoArcs.length; i++) {
           const a = indigoArcs[i];
@@ -394,7 +440,7 @@ export default function HeroBackground({
       }
 
       if (blueArcs.length > 0) {
-        ctx.fillStyle = "rgba(56, 189, 248, 0.75)";
+        ctx.fillStyle = "rgba(56, 189, 248, 0.85)";
         ctx.beginPath();
         for (let i = 0; i < blueArcs.length; i++) {
           const a = blueArcs[i];
@@ -405,7 +451,7 @@ export default function HeroBackground({
       }
 
       if (cyanArcs.length > 0) {
-        ctx.fillStyle = "rgba(0, 240, 255, 0.95)";
+        ctx.fillStyle = "rgba(0, 240, 255, 0.98)";
         ctx.beginPath();
         for (let i = 0; i < cyanArcs.length; i++) {
           const a = cyanArcs[i];
@@ -457,7 +503,7 @@ export default function HeroBackground({
           willChange: "transform",
         }}
       >
-        {/* Layer 1: Base low-contrast full-bleed grid */}
+        {/* Layer 1: Base low-contrast full-bleed grid (Tier 1: Deep Floor Shade) */}
         <div
           className="hero-grid"
           style={{
@@ -466,19 +512,29 @@ export default function HeroBackground({
         />
 
         {/* 
-          Layer 2: Masked saturated blue/indigo dot grid inside centered logo mark
-          Elevated along Z-axis for stereoscopic cloth depth 
+          Layer 2a: Atmospheric glyph ambient glow (Soft halo framing the emblem)
+        */}
+        <div
+          className="hero-glyph-glow"
+          style={{
+            transform: "translateZ(8px)",
+          }}
+        />
+
+        {/* 
+          Layer 2b: Masked saturated blue/indigo dot grid & volumetric silhouette inside logo mark
+          Elevated along Z-axis for stereoscopic cloth depth (Tier 2: Mid-Tone Emblem Silhouette)
         */}
         <div
           className="hero-mask"
           style={{
-            backgroundSize: `${accentGridPitch}px ${accentGridPitch}px`,
+            backgroundSize: `${accentGridPitch}px ${accentGridPitch}px, 100% 100%`,
             transform: "translateZ(14px)",
           }}
         />
 
         {/* 
-          Layer 3: Fluid Blue-Neon Ripple Canvas
+          Layer 3: Fluid Blue-Neon Ripple Canvas (Tier 3: High-Luminance Energetic Wave)
           Propagates concentric neon shockwaves and cursor-following caustics
         */}
         {enableMotion && (
@@ -486,7 +542,7 @@ export default function HeroBackground({
             ref={canvasRef}
             className="absolute inset-0 pointer-events-none"
             style={{
-              transform: "translateZ(18px)",
+              transform: "translateZ(20px)",
             }}
           />
         )}

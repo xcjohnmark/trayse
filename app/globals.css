@@ -76,8 +76,8 @@
 
 :root {
   --bg: #111113;
-  --dot: rgba(210, 225, 255, 0.08);
-  --dot-accent: rgba(59, 64, 214, 0.4);
+  --dot: rgba(180, 200, 255, 0.055);
+  --dot-accent: rgba(80, 105, 255, 0.68);
   --mask-size: min(72vw, 50rem);
   --mask-url: url('/trayse-mask.svg');
 }
@@ -99,7 +99,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Layer 1: Base low-contrast full-bleed grid */
+/* Layer 1: Base low-contrast full-bleed grid (Floor / Deepest Shade) */
 .hero-grid {
   position: absolute;
   inset: 0;
@@ -108,12 +108,34 @@ body {
   pointer-events: none;
 }
 
-/* Layer 2: Masked saturated blue/indigo dot grid inside centered logo mark */
+/* Layer 2a: Atmospheric glyph ambient glow (Soft luminous aura defining the emblem in 3D space) */
+.hero-glyph-glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 60% 55% at center, rgba(59, 64, 214, 0.28) 0%, rgba(35, 42, 160, 0.12) 55%, transparent 75%);
+  -webkit-mask-image: var(--mask-url);
+  mask-image: var(--mask-url);
+  -webkit-mask-size: var(--mask-size);
+  mask-size: var(--mask-size);
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  filter: blur(18px);
+  pointer-events: none;
+  opacity: 0.9;
+}
+
+/* Layer 2b: Masked logo glyph with distinct volumetric silhouette shade + crisp accent dots */
 .hero-mask {
   position: absolute;
   inset: 0;
-  background-image: radial-gradient(circle, var(--dot-accent) 1.4px, transparent 2px);
-  background-size: 12px 12px;
+  background-image: 
+    radial-gradient(circle, var(--dot-accent) 1.5px, transparent 2px),
+    radial-gradient(ellipse 65% 60% at center, rgba(62, 72, 225, 0.22) 0%, rgba(42, 50, 180, 0.12) 65%, rgba(20, 25, 100, 0.04) 100%);
+  background-size: 12px 12px, 100% 100%;
+  background-repeat: repeat, no-repeat;
+  background-position: center, center;
   -webkit-mask-image: var(--mask-url);
   mask-image: var(--mask-url);
   -webkit-mask-size: var(--mask-size);
