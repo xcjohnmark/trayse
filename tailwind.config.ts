@@ -51,7 +51,9 @@ const config: Config = {
           "Segoe UI",
           "sans-serif",
         ],
+        headline: ["var(--font-raleway)", "Raleway", "sans-serif"],
         eyebrow: ["var(--font-raleway)", "Raleway", "sans-serif"],
+        raleway: ["var(--font-raleway)", "Raleway", "sans-serif"],
         mono: [
           "ui-monospace",
           "SFMono-Regular",

@@ -76,9 +76,9 @@
 
 :root {
   --bg: #111113;
-  --dot: rgba(210, 225, 255, 0.12);
-  --dot-accent: rgba(59, 64, 214, 0.55);
-  --mask-size: min(72vw, 42rem);
+  --dot: rgba(210, 225, 255, 0.08);
+  --dot-accent: rgba(59, 64, 214, 0.4);
+  --mask-size: min(72vw, 50rem);
   --mask-url: url('/trayse-mask.svg');
 }
 

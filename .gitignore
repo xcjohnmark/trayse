@@ -20,6 +20,7 @@ build/
 project-details/
 build-tools.md
 hack-mvp-plan.md
+phase.md
 
 # Environment Variables & Secrets
 .env
