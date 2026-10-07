@@ -18,7 +18,7 @@ import {
   CheckCircle2,
   Coins,
   Bot,
-  ExternalLink,
+  TrendingUp,
 } from "lucide-react";
 
 export default function ArbitrageScannerPage() {
@@ -34,7 +34,7 @@ export default function ArbitrageScannerPage() {
   const [selectedCapital, setSelectedCapital] = useState<{ [pairId: string]: number }>({});
   const [executedOrders, setExecutedOrders] = useState<{ [pairId: string]: boolean }>({});
 
-  // Live order flow tick simulation
+  // Live order flow tick simulation (every 4s)
   useEffect(() => {
     const interval = setInterval(() => {
       setPairs((prev) => {
@@ -50,12 +50,12 @@ export default function ArbitrageScannerPage() {
     return () => clearInterval(interval);
   }, []);
 
-  // Compute live arbitrage opportunities
+  // Compute live arbitrage opportunities via the mathematical engine
   const opportunities = useMemo(() => {
     return scanForArbitrage(pairs);
   }, [pairs]);
 
-  // Aggregate Metrics
+  // Aggregate Metrics for Top Banner
   const totalArbCount = opportunities.length;
   const maxRoi = opportunities.length > 0 ? Math.max(...opportunities.map((o) => o.roiPercent)) : 0;
   const totalLiquidityUsd = opportunities.reduce((acc, o) => acc + o.maxCapitalCapacityUsd, 0);
@@ -100,32 +100,35 @@ export default function ArbitrageScannerPage() {
 
   return (
     <div className="flex flex-col h-full space-y-4 font-sans select-none overflow-y-auto pr-1">
-      {/* 1. Top Quantitative Metrics Banner */}
+      {/* 1. Top Metrics Banner */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        {/* Total Active Arbitrage Pairs */}
         <div className="rounded-lg border border-[#1F232F] bg-[#0C0D12] p-3">
           <div className="text-[10px] font-mono text-zinc-500 flex items-center justify-between">
-            <span>ACTIVE ARB PAIRS</span>
+            <span>ACTIVE ARBITRAGE PAIRS</span>
             <Zap className="h-3 w-3 text-[#00FFA3]" />
           </div>
           <div className="text-xl font-bold font-mono text-[#00FFA3] mt-1 flex items-baseline gap-1.5">
-            {totalArbCount}
-            <span className="text-xs font-normal text-zinc-400">Deterministic</span>
+            {totalArbCount} Pairs
+            <span className="text-[10px] font-normal text-zinc-400">Guaranteed</span>
           </div>
         </div>
 
+        {/* Maximum Live Net ROI */}
         <div className="rounded-lg border border-[#1F232F] bg-[#0C0D12] p-3">
           <div className="text-[10px] font-mono text-zinc-500 flex items-center justify-between">
-            <span>MAX NET BASIS ROI</span>
+            <span>MAXIMUM LIVE NET ROI</span>
             <Sparkles className="h-3 w-3 text-emerald-400" />
           </div>
           <div className="text-xl font-bold font-mono text-emerald-400 mt-1">
-            +{maxRoi.toFixed(2)}%
+            +{maxRoi.toFixed(2)}% Net
           </div>
         </div>
 
+        {/* Available Arbitrage Liquidity */}
         <div className="rounded-lg border border-[#1F232F] bg-[#0C0D12] p-3">
           <div className="text-[10px] font-mono text-zinc-500 flex items-center justify-between">
-            <span>AVAILABLE LIQUIDITY</span>
+            <span>AVAILABLE ARB LIQUIDITY</span>
             <Coins className="h-3 w-3 text-blue-400" />
           </div>
           <div className="text-xl font-bold font-mono text-white mt-1">
@@ -133,9 +136,10 @@ export default function ArbitrageScannerPage() {
           </div>
         </div>
 
+        {/* Average Expiry Horizon */}
         <div className="rounded-lg border border-[#1F232F] bg-[#0C0D12] p-3">
           <div className="text-[10px] font-mono text-zinc-500 flex items-center justify-between">
-            <span>AVG EXPIRY HORIZON</span>
+            <span>AVERAGE EXPIRY HORIZON</span>
             <Clock className="h-3 w-3 text-amber-400" />
           </div>
           <div className="text-xl font-bold font-mono text-amber-300 mt-1">
@@ -144,7 +148,7 @@ export default function ArbitrageScannerPage() {
         </div>
       </div>
 
-      {/* 2. Radar Header Banner */}
+      {/* 2. Radar Control Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-[#0C0D12] border border-[#1F232F] p-3 rounded-lg">
         <div>
           <div className="flex items-center gap-2">
@@ -162,14 +166,14 @@ export default function ArbitrageScannerPage() {
         </div>
         <div className="flex items-center gap-2 text-xs font-mono text-zinc-400">
           <span className="h-2 w-2 rounded-full bg-[#00FFA3] animate-pulse" />
-          <span>FEE MODEL: 25 BPS BUFFER INCLUDED</span>
+          <span>FEE MODEL: $0.01 / CONTRACT NORMALIZED</span>
         </div>
       </div>
 
-      {/* 3. High-Density Arbitrage Opportunities Grid */}
+      {/* 3. Opportunity Card / High-Density Grid */}
       {opportunities.length === 0 ? (
         <div className="rounded-lg border border-[#1F232F] bg-[#090A0E] p-12 text-center text-zinc-500 font-mono">
-          Scanning cross-venue CLOB tapes... No synthetic arbitrage currently exceeds the 25 bps fee threshold.
+          Scanning cross-venue CLOB tapes... No synthetic arbitrage currently exceeds the fee threshold.
         </div>
       ) : (
         <div className="space-y-4">
@@ -181,12 +185,15 @@ export default function ArbitrageScannerPage() {
             const payoff = calculateArbPositionPayoff(opp, capital);
             const isExecuted = executedOrders[opp.pairId];
 
+            const venueYesLabel = opp.buyVenueYes === "polymarket" ? "Polymarket" : "Kalshi";
+            const venueNoLabel = opp.buyVenueNo === "polymarket" ? "Polymarket" : "Kalshi";
+
             return (
               <div
                 key={opp.pairId}
                 className="rounded-xl border border-[#1F232F] bg-[#090A0E] hover:border-[#2D3345] transition-all p-4 space-y-4 shadow-xl"
               >
-                {/* Opportunity Top Row */}
+                {/* 3a. Event Title & Category */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-2.5 pb-3 border-b border-[#1F232F]">
                   <div>
                     <div className="flex items-center gap-2">
@@ -210,90 +217,103 @@ export default function ArbitrageScannerPage() {
                   <div className="flex items-center gap-2">
                     <div className="px-3 py-1.5 rounded-lg bg-[#00FFA3]/10 border border-[#00FFA3]/30 text-right">
                       <span className="text-[9px] font-mono text-zinc-400 block uppercase">
-                        Net Guaranteed Yield
+                        Net Guaranteed ROI
                       </span>
                       <span className="text-base font-mono font-bold text-[#00FFA3]">
-                        +{opp.roiPercent.toFixed(2)}% ROI
+                        +{opp.roiPercent.toFixed(2)}%
                       </span>
                     </div>
                   </div>
                 </div>
 
-                {/* Execution Route Diagram */}
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 items-center">
-                  {/* Leg 1: BUY YES */}
-                  <div className="lg:col-span-4 rounded-lg border border-[#1F232F] bg-[#12141C] p-3 font-mono">
-                    <div className="flex items-center justify-between text-[11px] text-zinc-400">
-                      <span className="flex items-center gap-1.5">
+                {/* 3b. Execution Route Box */}
+                <div className="rounded-lg border border-[#1F232F] bg-[#0C0D12] p-3 space-y-2">
+                  <div className="text-[10px] font-mono text-zinc-500 uppercase tracking-wider flex items-center justify-between">
+                    <span>EXECUTION ROUTE SPECIFICATION</span>
+                    <span className="text-[#00FFA3] font-semibold">100% OUTCOME COVERAGE</span>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 font-mono text-xs">
+                    {/* Leg 1 */}
+                    <div className="rounded-md border border-purple-500/20 bg-[#12141C] p-2.5 flex items-center justify-between">
+                      <div className="flex items-center gap-2">
                         <span
-                          className={`h-2 w-2 rounded-full ${
+                          className={`h-2.5 w-2.5 rounded-full ${
                             opp.buyVenueYes === "polymarket" ? "bg-purple-400" : "bg-blue-400"
                           }`}
                         />
-                        <span className="font-bold text-white uppercase">
-                          LEG 1: BUY YES ON {opp.buyVenueYes}
+                        <span className="font-bold text-zinc-100">
+                          Leg 1: BUY YES on {venueYesLabel} @ ${opp.buyPriceYes.toFixed(3)}
                         </span>
-                      </span>
-                      <span className="text-zinc-500">Taker Order</span>
-                    </div>
-                    <div className="flex items-baseline justify-between mt-2">
-                      <span className="text-lg font-bold text-white">
+                      </div>
+                      <span className="text-[11px] text-zinc-400">
                         {convertOdds(opp.buyPriceYes, oddsFormat)}
                       </span>
-                      <span className="text-xs text-zinc-400">
-                        Contract Price: ${opp.buyPriceYes.toFixed(3)}
-                      </span>
                     </div>
-                  </div>
 
-                  {/* Route Connector */}
-                  <div className="lg:col-span-1 flex justify-center text-zinc-500 font-mono text-xs">
-                    <div className="flex items-center gap-1 bg-[#161922] px-2 py-1 rounded border border-[#1F232F]">
-                      <span>+</span>
-                    </div>
-                  </div>
-
-                  {/* Leg 2: BUY NO */}
-                  <div className="lg:col-span-4 rounded-lg border border-[#1F232F] bg-[#12141C] p-3 font-mono">
-                    <div className="flex items-center justify-between text-[11px] text-zinc-400">
-                      <span className="flex items-center gap-1.5">
+                    {/* Leg 2 */}
+                    <div className="rounded-md border border-blue-500/20 bg-[#12141C] p-2.5 flex items-center justify-between">
+                      <div className="flex items-center gap-2">
                         <span
-                          className={`h-2 w-2 rounded-full ${
+                          className={`h-2.5 w-2.5 rounded-full ${
                             opp.buyVenueNo === "polymarket" ? "bg-purple-400" : "bg-blue-400"
                           }`}
                         />
-                        <span className="font-bold text-white uppercase">
-                          LEG 2: BUY NO ON {opp.buyVenueNo}
+                        <span className="font-bold text-zinc-100">
+                          Leg 2: BUY NO on {venueNoLabel} @ ${opp.buyPriceNo.toFixed(3)}
                         </span>
-                      </span>
-                      <span className="text-zinc-500">Taker Order</span>
-                    </div>
-                    <div className="flex items-baseline justify-between mt-2">
-                      <span className="text-lg font-bold text-white">
+                      </div>
+                      <span className="text-[11px] text-zinc-400">
                         {convertOdds(opp.buyPriceNo, oddsFormat)}
-                      </span>
-                      <span className="text-xs text-zinc-400">
-                        Contract Price: ${opp.buyPriceNo.toFixed(3)}
                       </span>
                     </div>
                   </div>
+                </div>
 
-                  {/* Effective Cost & Payoff */}
-                  <div className="lg:col-span-3 rounded-lg border border-[#1F232F] bg-[#12141C] p-3 font-mono">
-                    <span className="text-[10px] text-zinc-500 block uppercase">
-                      Effective Synthetic Cost
+                {/* 3c. Financial Metrics Grid */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 font-mono text-xs">
+                  {/* Effective Cost */}
+                  <div className="rounded-lg border border-[#1F232F] bg-[#12141C] p-2.5">
+                    <span className="text-[10px] text-zinc-500 block">EFFECTIVE COST</span>
+                    <div className="font-bold text-amber-300 text-sm mt-0.5">
+                      ${opp.effectiveCost.toFixed(3)}
+                    </div>
+                    <span className="text-[10px] text-zinc-400 block mt-0.5">
+                      pays ${opp.effectiveCost.toFixed(3)} for guaranteed $1.00
                     </span>
-                    <div className="flex items-baseline justify-between mt-1">
-                      <span className="text-lg font-bold text-amber-300">
-                        ${opp.effectiveCost.toFixed(3)}
-                      </span>
-                      <span className="text-xs text-[#00FFA3] font-bold">
-                        Pays $1.000
-                      </span>
+                  </div>
+
+                  {/* Net ROI % */}
+                  <div className="rounded-lg border border-[#1F232F] bg-[#12141C] p-2.5">
+                    <span className="text-[10px] text-zinc-500 block">NET ROI %</span>
+                    <div className="font-bold text-[#00FFA3] text-sm mt-0.5">
+                      +{opp.roiPercent.toFixed(2)}%
                     </div>
-                    <div className="text-[10px] text-zinc-500 mt-1">
-                      Includes 25 bps taker/gas fee
+                    <span className="text-[10px] text-zinc-400 block mt-0.5">
+                      risk-free basis yield
+                    </span>
+                  </div>
+
+                  {/* Spread */}
+                  <div className="rounded-lg border border-[#1F232F] bg-[#12141C] p-2.5">
+                    <span className="text-[10px] text-zinc-500 block">NET SPREAD</span>
+                    <div className="font-bold text-white text-sm mt-0.5">
+                      {opp.netSpreadBps} bps
                     </div>
+                    <span className="text-[10px] text-zinc-400 block mt-0.5">
+                      gross: {opp.grossSpreadBps} bps
+                    </span>
+                  </div>
+
+                  {/* Available Size */}
+                  <div className="rounded-lg border border-[#1F232F] bg-[#12141C] p-2.5">
+                    <span className="text-[10px] text-zinc-500 block">AVAILABLE SIZE</span>
+                    <div className="font-bold text-white text-sm mt-0.5">
+                      ${opp.maxCapitalCapacityUsd.toLocaleString()} Max
+                    </div>
+                    <span className="text-[10px] text-zinc-400 block mt-0.5">
+                      top-of-book depth
+                    </span>
                   </div>
                 </div>
 
@@ -337,10 +357,10 @@ export default function ArbitrageScannerPage() {
                   </div>
                 </div>
 
-                {/* Execution Actions Toolbar */}
+                {/* 3d. Execution Action Bar */}
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-[#1F232F]">
                   <div className="flex items-center gap-2">
-                    {/* Execute via Swig Session Key */}
+                    {/* Button 1: Execute via Session Key */}
                     <button
                       type="button"
                       onClick={() => handleExecuteSessionKey(opp, pair)}
@@ -361,26 +381,14 @@ export default function ArbitrageScannerPage() {
                           <Bot className="h-3.5 w-3.5" />
                           <span>
                             {sessionKey.isAuthorized
-                              ? `Execute $${capital} via Session Key`
-                              : "Authorize Session Key to Trade"}
+                              ? `Execute via Session Key ($${capital})`
+                              : "Execute via Session Key"}
                           </span>
                         </>
                       )}
                     </button>
 
-                    {/* Inspect Dual Order Book */}
-                    <button
-                      type="button"
-                      onClick={() => setSelectedPairId(opp.pairId)}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#161922] hover:bg-[#1E2230] border border-[#1F232F] text-zinc-300 hover:text-white text-xs font-mono transition-colors"
-                    >
-                      <Layers className="h-3.5 w-3.5 text-purple-400" />
-                      <span>Inspect Depth</span>
-                    </button>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    {/* Share Solana Blink Trigger */}
+                    {/* Button 2: Share Solana Blink */}
                     <button
                       type="button"
                       onClick={() => openModal("DIALECT_BLINK", opp.pairId)}
@@ -388,10 +396,10 @@ export default function ArbitrageScannerPage() {
                       title="Generate Solana Dialect Action Blink card"
                     >
                       <Share2 className="h-3.5 w-3.5" />
-                      <span>Share Blink</span>
+                      <span>Share Solana Blink</span>
                     </button>
 
-                    {/* Robinhood Delta Hedge (if equity linked) */}
+                    {/* Button 3: Robinhood Delta Hedge (if linked equity) */}
                     {pair.correlatedEquityTicker && (
                       <button
                         type="button"
@@ -400,10 +408,20 @@ export default function ArbitrageScannerPage() {
                         title="Delta-neutral basis hedge on Robinhood Chain L2"
                       >
                         <ShieldCheck className="h-3.5 w-3.5 text-amber-400" />
-                        <span>Hedge {pair.correlatedEquityTicker}</span>
+                        <span>Robinhood Delta Hedge ({pair.correlatedEquityTicker})</span>
                       </button>
                     )}
                   </div>
+
+                  {/* Secondary Inspect Depth Action */}
+                  <button
+                    type="button"
+                    onClick={() => setSelectedPairId(opp.pairId)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#161922] hover:bg-[#1E2230] border border-[#1F232F] text-zinc-300 hover:text-white text-xs font-mono transition-colors"
+                  >
+                    <Layers className="h-3.5 w-3.5 text-purple-400" />
+                    <span>Inspect Depth</span>
+                  </button>
                 </div>
               </div>
             );
