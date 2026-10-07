@@ -348,11 +348,11 @@ export const INITIAL_MARKET_PAIRS: NormalizedMarketPair[] = [
 export const QUANT_STRATEGY_MODELS: QuantStrategyModel[] = [
   {
     id: "quant-model-macro-nowcast",
-    name: "FedWatch Inflation Nowcast Model",
+    name: "Macro Nowcast Model (BLS Inflation & Fed Funds)",
     category: "Macro",
     description:
       "Multivariate regression model analyzing daily high-frequency CPI prints, Treasury breakeven spreads, and commodity futures to calculate statistical odds of central bank rate moves.",
-    dataSource: "Bureau of Labor Statistics (BLS) & Cleveland Fed Nowcast",
+    dataSource: "High-frequency economic prints & CPI nowcasts",
     modelProbability: 0.685,
     marketProbability: 0.62,
     statisticalEdge: 0.065,
@@ -364,11 +364,11 @@ export const QUANT_STRATEGY_MODELS: QuantStrategyModel[] = [
   },
   {
     id: "quant-model-weathernext",
-    name: "WeatherNext Physical Atmospheric Dynamics",
+    name: "WeatherNext Physical Dynamics (Atmospheric Ensemble)",
     category: "Physical & Weather",
     description:
       "Physics-based atmospheric numerical ensemble combining high-resolution satellite radar and GFS/ECMWF forecasts to predict temperature and hurricane landfall probabilities.",
-    dataSource: "NOAA HRRR / European Centre ECMWF Ensembles",
+    dataSource: "NOAA High-Resolution Rapid Refresh (HRRR) & ECMWF hurricane track",
     modelProbability: 0.41,
     marketProbability: 0.34,
     statisticalEdge: 0.07,
@@ -380,11 +380,11 @@ export const QUANT_STRATEGY_MODELS: QuantStrategyModel[] = [
   },
   {
     id: "quant-model-earnings-vol",
-    name: "Earnings Volatility Surface Scanner",
+    name: "Tech Earnings Volatility Surface (Robinhood NVDA/AAPL)",
     category: "Tech & Equities",
     description:
       "Options implied volatility surface analyzer modeling probability distributions of post-earnings price moves, correlated directly with Robinhood Tokenized Equities ($NVDA-RH).",
-    dataSource: "Robinhood Nitro L2 Order Flow & Cboe Options Skew",
+    dataSource: "Historical earnings implied moves vs tokenized options skew",
     modelProbability: 0.54,
     marketProbability: 0.495,
     statisticalEdge: 0.045,
@@ -396,11 +396,11 @@ export const QUANT_STRATEGY_MODELS: QuantStrategyModel[] = [
   },
   {
     id: "quant-model-whale-flow",
-    name: "Yellowstone Whale Flow Asymmetry",
+    name: "Yellowstone Whale Flow Asymmetry (Solana High-Frequency)",
     category: "Crypto",
     description:
       "Micro-latency order flow imbalance detector tracking large-holder wallet accumulation and aggressive taker flow streamed via Solana Yellowstone gRPC validator plugins.",
-    dataSource: "Yellowstone gRPC Mempool / Jito Block Engine Stream",
+    dataSource: "Solana validator order flow tape & large-holder wallet accumulation",
     modelProbability: 0.612,
     marketProbability: 0.56,
     statisticalEdge: 0.052,

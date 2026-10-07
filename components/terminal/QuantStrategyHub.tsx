@@ -183,10 +183,10 @@ export function QuantStrategyHub() {
                   </span>
                 </div>
 
-                {/* Sparkline curve */}
+                {/* Sparkline curve: Backtest Performance */}
                 <div className="flex flex-col items-end">
-                  <span className="text-[9px] text-zinc-500">OUT-OF-SAMPLE ALPHA</span>
-                  <svg width="140" height="35" className="overflow-visible">
+                  <span className="text-[9px] font-mono text-zinc-500 uppercase">Backtest Performance</span>
+                  <svg width="140" height="35" className="overflow-visible mt-0.5">
                     <polyline
                       fill="none"
                       stroke="#00FFA3"
@@ -197,7 +197,7 @@ export function QuantStrategyHub() {
                 </div>
 
                 <div className="text-right">
-                  <span className="text-[10px] text-zinc-500 block">KELLY STAKE</span>
+                  <span className="text-[10px] text-zinc-500 block">KELLY SIZE</span>
                   <span className="font-bold text-[#00FFA3]">
                     {model.suggestedKellyStakePercent}% Allocation
                   </span>
@@ -212,7 +212,7 @@ export function QuantStrategyHub() {
                   className="flex items-center gap-1 text-[11px] font-mono text-zinc-400 hover:text-white transition-colors"
                 >
                   <Info className="h-3 w-3" />
-                  <span>{isExpanded ? "Hide Formula" : "Formula Details"}</span>
+                  <span>{isExpanded ? "Hide Details" : "Signal Details"}</span>
                   {isExpanded ? (
                     <ChevronUp className="h-3 w-3" />
                   ) : (
