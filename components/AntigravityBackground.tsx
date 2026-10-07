@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState, useCallback } from "react";
+import React, { useEffect, useRef, useState, useCallback, useSyncExternalStore } from "react";
 
 /**
  * GOOGLE ANTIGRAVITY HOVER EFFECT ENGINE
@@ -67,6 +67,7 @@ export default function AntigravityBackground({
 }: AntigravityBackgroundProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const cursorElementRef = useRef<HTMLDivElement>(null);
 
   // Cursor tracking state
   const mouseRef = useRef({
@@ -84,15 +85,17 @@ export default function AntigravityBackground({
   const [cursorActive, setCursorActive] = useState(false);
   const [cursorMode, setCursorMode] = useState<CursorMode>("default");
   const [cursorLabel, setCursorLabel] = useState("Explore");
-  const cursorElementRef = useRef<HTMLDivElement>(null);
-  const [isTouchDevice, setIsTouchDevice] = useState(false);
-
-  // Check touch capabilities
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      setIsTouchDevice(window.matchMedia("(hover: none)").matches);
-    }
-  }, []);
+  // Check touch capabilities safely without setState in effect
+  const isTouchDevice = useSyncExternalStore(
+    (callback) => {
+      if (typeof window === "undefined") return () => {};
+      const mq = window.matchMedia("(hover: none)");
+      mq.addEventListener("change", callback);
+      return () => mq.removeEventListener("change", callback);
+    },
+    () => (typeof window !== "undefined" ? window.matchMedia("(hover: none)").matches : false),
+    () => false
+  );
 
   // Update cursor position smoothly via RAF
   useEffect(() => {

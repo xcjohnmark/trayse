@@ -146,11 +146,12 @@ export default function Fluid3DTiltNav({
       sp.rafId = requestAnimationFrame(updatePhysics);
     };
 
-    springs.current.rafId = requestAnimationFrame(updatePhysics);
+    const currentSprings = springs.current;
+    currentSprings.rafId = requestAnimationFrame(updatePhysics);
 
     return () => {
       isRunning = false;
-      cancelAnimationFrame(springs.current.rafId);
+      cancelAnimationFrame(currentSprings.rafId);
     };
   }, []);
 

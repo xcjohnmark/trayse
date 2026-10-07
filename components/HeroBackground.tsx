@@ -462,11 +462,12 @@ export default function HeroBackground({
       }
     };
 
-    springs.current.rafId = requestAnimationFrame(render);
+    const currentSprings = springs.current;
+    currentSprings.rafId = requestAnimationFrame(render);
 
     return () => {
       isRunning = false;
-      cancelAnimationFrame(springs.current.rafId);
+      cancelAnimationFrame(currentSprings.rafId);
       window.removeEventListener("pointermove", handlePointerMove);
       window.removeEventListener("pointerdown", handlePointerDown);
       window.removeEventListener("mouseleave", handlePointerLeave);

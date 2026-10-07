@@ -60,15 +60,16 @@ export default function ArbitrageScannerPage() {
   const maxRoi = opportunities.length > 0 ? Math.max(...opportunities.map((o) => o.roiPercent)) : 0;
   const totalLiquidityUsd = opportunities.reduce((acc, o) => acc + o.maxCapitalCapacityUsd, 0);
 
+  const [renderTimestamp] = useState(() => Date.now());
+
   const avgDaysToExpiry = useMemo(() => {
     if (opportunities.length === 0) return 0;
-    const now = Date.now();
     const totalDays = opportunities.reduce((acc, o) => {
-      const days = Math.max(1, Math.round((o.expiryTimestamp - now) / (1000 * 3600 * 24)));
+      const days = Math.max(1, Math.round((o.expiryTimestamp - renderTimestamp) / (1000 * 3600 * 24)));
       return acc + days;
     }, 0);
     return Math.round(totalDays / opportunities.length);
-  }, [opportunities]);
+  }, [opportunities, renderTimestamp]);
 
   const handleExecuteSessionKey = (opp: ArbitrageOpportunity, pair: NormalizedMarketPair) => {
     if (!sessionKey.isAuthorized) {
