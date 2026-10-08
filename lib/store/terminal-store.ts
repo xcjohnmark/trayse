@@ -13,6 +13,10 @@ export type ModalType =
   | "DIALECT_BLINK"
   | "ROBINHOOD_HEDGE"
   | "DEV_SDK"
+  | "CONNECT_ACCOUNTS"
+  | "ORDER_SLIP"
+  | "QUANT_STUDIO"
+  | "ONBOARDING"
   | null;
 
 export interface TerminalState {
@@ -22,27 +26,54 @@ export interface TerminalState {
   activeCategory: MarketCategory | "All";
   searchQuery: string;
   selectedPairId: string | null;
+  isSidebarCollapsed: boolean;
 
-  // 2. Personal Watchlists & Audit Journal (Persisted)
+  // 1b. Onboarding & Trader Persona
+  hasOnboarded: boolean;
+  traderPersona: "ARBITRAGEUR" | "QUANT" | "ANALYST" | "HEDGER";
+
+  // 2. Exchange Connection & Demo Paper Trading
+  polymarketConnected: boolean;
+  kalshiConnected: boolean;
+  isDemoMode: boolean;
+  demoBalanceUsd: number;
+
+  // 3. Order Execution Slip Context
+  orderSlipContext: {
+    pairId: string;
+    outcome: "YES" | "NO";
+  } | null;
+
+  // 4. Personal Watchlists & Audit Journal (Persisted)
   watchlists: string[];
   journalEntries: JournalEntry[];
 
-  // 3. Swig Non-Custodial Session Keys
+  // 5. Swig Non-Custodial Session Keys
   sessionKey: SessionKeyConfig;
 
-  // 4. Modal Triggers & Context
+  // 6. Modal Triggers & Context
   activeModal: ModalType;
   modalContextPairId: string | null;
 
-  // Actions
+  toggleSidebar: () => void;
+  setSidebarCollapsed: (collapsed: boolean) => void;
   setActiveRail: (rail: BlockchainRail) => void;
   setOddsFormat: (format: OddsFormat) => void;
   setActiveCategory: (cat: MarketCategory | "All") => void;
   setSearchQuery: (q: string) => void;
   setSelectedPairId: (id: string | null) => void;
+  connectPolymarket: () => void;
+  disconnectPolymarket: () => void;
+  connectKalshi: () => void;
+  disconnectKalshi: () => void;
+  toggleDemoMode: (enabled?: boolean) => void;
+  adjustDemoBalance: (delta: number) => void;
+  openOrderSlip: (pairId: string, outcome: "YES" | "NO") => void;
   toggleWatchlist: (pairId: string) => void;
   addJournalEntry: (entry: Omit<JournalEntry, "id" | "timestamp">) => void;
   updateJournalEntryStatus: (id: string, status: JournalEntry["status"]) => void;
+  setOnboarded: (onboarded: boolean) => void;
+  setTraderPersona: (persona: "ARBITRAGEUR" | "QUANT" | "ANALYST" | "HEDGER") => void;
   updateSessionKeyConfig: (config: Partial<SessionKeyConfig>) => void;
   authorizeSessionKey: (
     maxPosition: number,
@@ -105,6 +136,17 @@ export const useTerminalStore = create<TerminalState>()(
       activeCategory: "All",
       searchQuery: "",
       selectedPairId: null,
+      isSidebarCollapsed: false,
+
+      hasOnboarded: false,
+      traderPersona: "ARBITRAGEUR",
+
+      polymarketConnected: false,
+      kalshiConnected: false,
+      isDemoMode: true,
+      demoBalanceUsd: 10000.0,
+
+      orderSlipContext: null,
 
       watchlists: ["fed-rate-cut-nov-2026", "nvda-market-cap-3-5t"],
       journalEntries: INITIAL_JOURNAL_ENTRIES,
@@ -115,6 +157,11 @@ export const useTerminalStore = create<TerminalState>()(
       modalContextPairId: null,
 
       // Actions
+      setOnboarded: (hasOnboarded) => set({ hasOnboarded }),
+      setTraderPersona: (traderPersona) => set({ traderPersona }),
+      toggleSidebar: () => set((s) => ({ isSidebarCollapsed: !s.isSidebarCollapsed })),
+      setSidebarCollapsed: (isSidebarCollapsed) => set({ isSidebarCollapsed }),
+
       setActiveRail: (activeRail) => set({ activeRail }),
 
       setOddsFormat: (oddsFormat) => set({ oddsFormat }),
@@ -124,6 +171,25 @@ export const useTerminalStore = create<TerminalState>()(
       setSearchQuery: (searchQuery) => set({ searchQuery }),
 
       setSelectedPairId: (selectedPairId) => set({ selectedPairId }),
+
+      connectPolymarket: () => set({ polymarketConnected: true }),
+      disconnectPolymarket: () => set({ polymarketConnected: false }),
+
+      connectKalshi: () => set({ kalshiConnected: true }),
+      disconnectKalshi: () => set({ kalshiConnected: false }),
+
+      toggleDemoMode: (enabled) =>
+        set((s) => ({ isDemoMode: enabled !== undefined ? enabled : !s.isDemoMode })),
+
+      adjustDemoBalance: (delta) =>
+        set((s) => ({ demoBalanceUsd: Math.max(0, s.demoBalanceUsd + delta) })),
+
+      openOrderSlip: (pairId, outcome) =>
+        set({
+          activeModal: "ORDER_SLIP",
+          modalContextPairId: pairId,
+          orderSlipContext: { pairId, outcome },
+        }),
 
       toggleWatchlist: (pairId) => {
         const current = get().watchlists;
@@ -200,13 +266,20 @@ export const useTerminalStore = create<TerminalState>()(
     {
       name: "trayse-terminal-storage",
       storage: createJSONStorage(() => localStorage),
-      // Only persist watchlists, journalEntries, and sessionKey
+      // Persist user preferences, watchlists, journal, and demo state
       partialize: (state) => ({
         watchlists: state.watchlists,
         journalEntries: state.journalEntries,
         sessionKey: state.sessionKey,
         oddsFormat: state.oddsFormat,
         activeRail: state.activeRail,
+        isDemoMode: state.isDemoMode,
+        demoBalanceUsd: state.demoBalanceUsd,
+        polymarketConnected: state.polymarketConnected,
+        kalshiConnected: state.kalshiConnected,
+        isSidebarCollapsed: state.isSidebarCollapsed,
+        hasOnboarded: state.hasOnboarded,
+        traderPersona: state.traderPersona,
       }),
     }
   )

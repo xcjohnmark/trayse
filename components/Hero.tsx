@@ -6,13 +6,17 @@ import AntigravityBackground from "./AntigravityBackground";
 import Fluid3DTiltNav from "./Fluid3DTiltNav";
 
 /**
- * BACKGROUND STYLE TOGGLE:
- * - "antigravity": Google Antigravity interactive canvas hover effect + multi-instance custom cursor system
- * - "legacy-masked-dots": Preserves the original cloth-masked dot grid ripple background (HeroBackground.tsx)
+ * BACKGROUND VARIANT & ROLLBACK CONFIGURATION:
  * 
- * To switch back to the previous style at any time, simply change this constant to "legacy-masked-dots".
+ * - BACKGROUND_STYLE: "legacy-masked-dots" (standard physics grid) | "antigravity" (canvas particle engine)
+ * - SHOW_BACKGROUND_LOGO_MASK:
+ *     false (Current): Clean black hero with subtle dot glyphs & full fluid neon ripple/tilt on hover
+ *     true  (Rollback): Re-enables the centered Trayse logo mask silhouette & halo glow
+ * 
+ * To switch or rollback versions at any time, simply flip these flags!
  */
 const BACKGROUND_STYLE: "antigravity" | "legacy-masked-dots" = "legacy-masked-dots";
+const SHOW_BACKGROUND_LOGO_MASK = false;
 
 export default function Hero() {
   const [activeTab, setActiveTab] = useState("explore");
@@ -22,7 +26,7 @@ export default function Hero() {
       {/* 
         BACKGROUND LAYER SELECTION
         Allows seamless testing and toggling between the new Google Antigravity hover engine
-        and the legacy cloth-masked dot ripple background without deleting any code.
+        and the clean cloth dot ripple background without deleting any code.
       */}
       {BACKGROUND_STYLE === "antigravity" ? (
         <AntigravityBackground
@@ -37,7 +41,8 @@ export default function Hero() {
       ) : (
         <HeroBackground
           bg="#111113"
-          dotColor="rgba(180, 200, 255, 0.055)"
+          dotColor="rgba(210, 225, 255, 0.08)"
+          showLogoMask={SHOW_BACKGROUND_LOGO_MASK}
           accentDotColor="rgba(80, 105, 255, 0.68)"
           maskSize="min(72vw, 50rem)"
           maskUrl="/trayse-mask.svg"

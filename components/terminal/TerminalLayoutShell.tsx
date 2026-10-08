@@ -1,17 +1,20 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useTerminalStore } from "@/lib/store/terminal-store";
 import { TerminalHeader } from "./TerminalHeader";
 import { TerminalSidebar } from "./TerminalSidebar";
-import { TerminalStatusBar } from "./TerminalStatusBar";
+import { ConnectAccountsModal } from "./modals/ConnectAccountsModal";
+import { OrderSlipModal } from "./modals/OrderSlipModal";
 import { DepthLadderModal } from "./modals/DepthLadderModal";
 import { SessionKeyModal } from "./modals/SessionKeyModal";
 import { DialectBlinkModal } from "./modals/DialectBlinkModal";
 import { RobinhoodHedgeModal } from "./modals/RobinhoodHedgeModal";
 import { DeveloperSdkModal } from "./modals/DeveloperSdkModal";
+import { QuantStudioModal } from "./modals/QuantStudioModal";
+import { OnboardingModal } from "./modals/OnboardingModal";
+import { CommandPalette } from "@/components/ui/CommandPalette";
 
 export function TerminalLayoutShell({
   children,
@@ -19,24 +22,37 @@ export function TerminalLayoutShell({
   children: React.ReactNode;
 }) {
   const router = useRouter();
-  const { openModal } = useTerminalStore();
+  const { closeModal, openModal, hasOnboarded } = useTerminalStore();
+  const [isCommandPaletteOpen, setIsCommandPaletteOpen] = React.useState(false);
 
-  const [queryClient] = useState(
-    () =>
-      new QueryClient({
-        defaultOptions: {
-          queries: {
-            staleTime: 60 * 1000,
-          },
-        },
-      })
-  );
+  // First-time visitor launch check (SSR and hydration safe)
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const storedOnboarded = localStorage.getItem("trayse_terminal_onboarded_v1");
+      if (!storedOnboarded && !hasOnboarded) {
+        openModal("ONBOARDING");
+      }
+    }
+  }, [hasOnboarded, openModal]);
 
-  // Global hotkeys listener for instant navigation and modal triggers
+  // Global Keyboard Shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Alt + 1-4 navigation shortcuts
-      if (e.altKey) {
+      // Cmd/Ctrl + K to toggle command palette
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setIsCommandPaletteOpen((prev) => !prev);
+        return;
+      }
+
+      // Escape to close modals or command palette
+      if (e.key === "Escape") {
+        setIsCommandPaletteOpen(false);
+        closeModal();
+      }
+
+      // Alt + 1-4 for quick navigation
+      if (e.altKey && !e.ctrlKey && !e.metaKey) {
         if (e.key === "1") {
           e.preventDefault();
           router.push("/terminal");
@@ -51,44 +67,55 @@ export function TerminalLayoutShell({
           router.push("/terminal/journal");
         }
       }
-      // Ctrl+K / Cmd+K Developer SDK trigger
-      else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
-        e.preventDefault();
-        openModal("DEV_SDK");
-      }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [router, openModal]);
+  }, [router, closeModal]);
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <div className="h-screen w-full flex flex-col bg-black text-white overflow-hidden select-none">
-        {/* Top Institutional Header Dock */}
-        <TerminalHeader />
+    <div className="flex h-screen w-full flex-col bg-[#07080B] text-white overflow-hidden select-none">
+      {/* 1. TOP HEADER (Brand, Global Search, Accounts Pill, Odds Format) */}
+      <TerminalHeader />
 
-        {/* Central Workspace Canvas */}
-        <div className="flex flex-1 overflow-hidden">
-          {/* Left Activity Sidebar (w-14) */}
-          <TerminalSidebar />
-
-          {/* Main Module Route Canvas */}
-          <main className="flex-1 overflow-y-auto bg-[#000000] p-3 sm:p-4">
-            {children}
-          </main>
-        </div>
-
-        {/* Bottom Diagnostic Status Strip */}
-        <TerminalStatusBar />
-
-        {/* Dynamic Blockchain & Inspection Modals */}
-        <DepthLadderModal />
-        <SessionKeyModal />
-        <DialectBlinkModal />
-        <RobinhoodHedgeModal />
-        <DeveloperSdkModal />
+      {/* 2. BODY WORKSPACE: Collapsible Sidebar + Main Content Stream */}
+      <div className="flex flex-1 overflow-hidden relative">
+        <TerminalSidebar />
+        <main className="flex-1 overflow-y-auto bg-[#07080B] relative">
+          {children}
+        </main>
       </div>
-    </QueryClientProvider>
+
+      {/* 3. MODAL MOUNTS */}
+      <ConnectAccountsModal />
+      <OrderSlipModal />
+      <DepthLadderModal />
+      <SessionKeyModal />
+      <DialectBlinkModal />
+      <RobinhoodHedgeModal />
+      <DeveloperSdkModal />
+      <QuantStudioModal />
+      <OnboardingModal />
+
+      {/* 4. GLOBAL COMMAND PALETTE (CMD+K) */}
+      <CommandPalette
+        isOpen={isCommandPaletteOpen}
+        onClose={() => setIsCommandPaletteOpen(false)}
+        onSelectAction={(actionId) => {
+          if (actionId === "action-onboarding") {
+            openModal("ONBOARDING");
+          } else if (actionId === "action-session-keys") {
+            openModal("SESSION_KEYS");
+          } else if (actionId === "action-scan-arb") {
+            router.push("/terminal/arbitrage");
+          } else if (actionId === "nav-journal") {
+            router.push("/terminal/journal");
+          }
+        }}
+        onSelectMarket={(marketId) => {
+          router.push(`/terminal?market=${marketId}`);
+        }}
+      />
+    </div>
   );
 }

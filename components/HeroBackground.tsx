@@ -7,6 +7,8 @@ export interface HeroBackgroundProps {
   bg?: string;
   /** Color of base dot grid (default: rgba(210, 225, 255, 0.08)) */
   dotColor?: string;
+  /** Whether to render the centered logo mask emblem layer (default: false). Set true to rollback to emblem version. */
+  showLogoMask?: boolean;
   /** Color of accent dot pattern visible in mask (default: rgba(59, 64, 214, 0.4)) */
   accentDotColor?: string;
   /** CSS mask size expression (default: min(72vw, 50rem)) */
@@ -39,7 +41,8 @@ interface SpringState {
 
 export default function HeroBackground({
   bg = "#111113",
-  dotColor = "rgba(180, 200, 255, 0.055)",
+  dotColor = "rgba(210, 225, 255, 0.08)",
+  showLogoMask = false,
   accentDotColor = "rgba(80, 105, 255, 0.68)",
   maskSize = "min(72vw, 50rem)",
   maskUrl = "/trayse-mask.svg",
@@ -513,26 +516,29 @@ export default function HeroBackground({
         />
 
         {/* 
-          Layer 2a: Atmospheric glyph ambient glow (Soft halo framing the emblem)
+          Optional Layer 2: Centered Logo Mask & Glow Emblem (Controlled by showLogoMask toggle)
+          Set showLogoMask={true} anytime to restore this previous version
         */}
-        <div
-          className="hero-glyph-glow"
-          style={{
-            transform: "translateZ(8px)",
-          }}
-        />
+        {showLogoMask && (
+          <>
+            {/* Layer 2a: Atmospheric glyph ambient glow (Soft halo framing the emblem) */}
+            <div
+              className="hero-glyph-glow"
+              style={{
+                transform: "translateZ(8px)",
+              }}
+            />
 
-        {/* 
-          Layer 2b: Masked saturated blue/indigo dot grid & volumetric silhouette inside logo mark
-          Elevated along Z-axis for stereoscopic cloth depth (Tier 2: Mid-Tone Emblem Silhouette)
-        */}
-        <div
-          className="hero-mask"
-          style={{
-            backgroundSize: `${accentGridPitch}px ${accentGridPitch}px, 100% 100%`,
-            transform: "translateZ(14px)",
-          }}
-        />
+            {/* Layer 2b: Masked saturated blue/indigo dot grid & volumetric silhouette inside logo mark */}
+            <div
+              className="hero-mask"
+              style={{
+                backgroundSize: `${accentGridPitch}px ${accentGridPitch}px, 100% 100%`,
+                transform: "translateZ(14px)",
+              }}
+            />
+          </>
+        )}
 
         {/* 
           Layer 3: Fluid Blue-Neon Ripple Canvas (Tier 3: High-Luminance Energetic Wave)
