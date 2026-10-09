@@ -96,30 +96,28 @@ export default function Hero() {
             </p>
           </div>
 
-          {/* Right Column: Floating Strategy CTA Capsule */}
+          {/* Right Column: Floating Strategy CTA Capsule (Lean Single-Line Pill) */}
           <div className="flex md:justify-end w-full md:w-auto">
             <div
-              className="w-full sm:w-auto bg-[#18191e]/85 backdrop-blur-md border border-white/15 shadow-[0_8px_24px_rgba(0,0,0,0.4)] rounded-full pl-6 sm:pl-7 pr-2.5 py-2 flex items-center justify-between sm:justify-start gap-6 sm:gap-8 transition-all hover:bg-[#18191e]/95"
+              className="w-full sm:w-auto bg-[#18191e]/85 backdrop-blur-md border border-white/15 shadow-[0_8px_24px_rgba(0,0,0,0.4)] rounded-full pl-4 sm:pl-5 pr-1.5 py-1.5 flex items-center justify-between sm:justify-start gap-4 sm:gap-6 transition-all hover:bg-[#18191e]/95 hover:border-white/25"
               data-cursor="Strategy"
               data-cursor-mode="inspect"
             >
-              {/* Copy in Urbanist Medium (2 Lines) */}
-              <div className="font-sans text-[13px] sm:text-[14px] font-medium text-white leading-tight text-left">
-                <div>Build and monitor</div>
-                <div>your strategy</div>
-              </div>
+              {/* Copy in Urbanist Medium (Single Line) */}
+              <span className="font-sans text-[13px] sm:text-[14px] font-medium text-white tracking-[-0.01em] whitespace-nowrap">
+                Build your own strategy
+              </span>
 
-              {/* CTA Button in Urbanist SemiBold (Strictly 2 Lines) */}
+              {/* CTA Button in Urbanist SemiBold (Single Line) */}
               <button
                 onClick={() => {
                   window.location.href = "/terminal";
                 }}
                 data-cursor="Launch ↗"
                 data-cursor-mode="action"
-                className="font-sans font-semibold text-[12px] sm:text-[13px] leading-tight bg-white text-black px-5 sm:px-6 py-2 sm:py-2.5 rounded-full tracking-normal hover:bg-zinc-200 active:scale-95 transition-all shadow-[0_4px_14px_rgba(0,0,0,0.25)] text-center whitespace-nowrap flex flex-col items-center justify-center shrink-0"
+                className="font-sans font-semibold text-[12px] sm:text-[13px] bg-white text-black px-4 sm:px-5 py-1.5 sm:py-2 rounded-full tracking-normal hover:bg-zinc-200 active:scale-95 transition-all shadow-[0_4px_14px_rgba(0,0,0,0.25)] text-center whitespace-nowrap shrink-0"
               >
-                <span className="block">Launch</span>
-                <span className="block">Terminal</span>
+                Launch Terminal
               </button>
             </div>
           </div>
