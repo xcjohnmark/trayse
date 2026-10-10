@@ -235,27 +235,21 @@ export function TerminalSidebar() {
           type="button"
           onClick={() => openModal("CONNECT_ACCOUNTS")}
           className={`w-full flex items-center gap-2 p-2 rounded-lg text-[11px] font-mono transition-colors ${
-            isDemoMode
-              ? "bg-amber-500/10 text-amber-300 hover:bg-amber-500/20"
-              : polymarketConnected || kalshiConnected
+            polymarketConnected || kalshiConnected
               ? "bg-[#00D688]/10 text-[#00FFA3] hover:bg-[#00D688]/20"
               : "bg-white/5 text-zinc-400 hover:bg-white/10"
           } ${isSidebarCollapsed ? "justify-center p-2" : ""}`}
         >
           <span
             className={`h-2 w-2 rounded-full flex-shrink-0 ${
-              isDemoMode
-                ? "bg-amber-400"
-                : polymarketConnected || kalshiConnected
+              polymarketConnected || kalshiConnected
                 ? "bg-[#00D688]"
                 : "bg-zinc-600"
             }`}
           />
           {!isSidebarCollapsed && (
             <span className="truncate flex-1 text-left font-semibold">
-              {isDemoMode
-                ? "Demo Mode Active"
-                : polymarketConnected && kalshiConnected
+              {polymarketConnected && kalshiConnected
                 ? "Poly + Kalshi Live"
                 : polymarketConnected
                 ? "Polymarket Live"

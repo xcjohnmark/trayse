@@ -11,6 +11,28 @@ export type OddsFormat = 'PROBABILITY' | 'DECIMAL' | 'AMERICAN' | 'CENTS';
 // 2. Execution Blockchain Rail
 export type BlockchainRail = 'DUAL' | 'SOLANA' | 'ROBINHOOD';
 
+// 2b. High-Frequency WebSocket Stream Status
+export type WebSocketConnectionStatus =
+  | 'DISCONNECTED'
+  | 'CONNECTING'
+  | 'CONNECTED'
+  | 'RECONNECTING'
+  | 'ERROR';
+
+// 2c. Off-Thread Conflated Tick Payload (Bloomberg-Grade)
+export interface ConflatedMarketTick {
+  assetId: string;
+  pairId?: string;
+  yesPrice: number;
+  noPrice: number;
+  bestBid: number;
+  bestAsk: number;
+  lastTradePrice?: number;
+  volume24h?: number;
+  timestamp: number;
+  tickDirection: 'UP' | 'DOWN' | 'FLAT';
+}
+
 // 3. Normalized Market Category Taxonomy
 export type MarketCategory =
   | 'Macro'
@@ -33,11 +55,23 @@ export interface OrderBook {
   lastUpdated: number;
 }
 
+// 5b. Submarket Multi-Outcome Contract (e.g. Candidates, Teams)
+export interface SubMarketOutcome {
+  id: string;
+  title: string;
+  yesPrice: number;
+  noPrice: number;
+  image?: string;
+  icon?: string;
+  assetId?: string; // Polymarket CLOB token ID for streaming
+}
+
 // 6. Platform-Specific Market Contract
 export interface VenueMarket {
   venue: 'polymarket' | 'kalshi';
   marketId: string;
   ticker: string;
+  assetId?: string; // Polymarket CLOB token asset ID for direct WSS subscription
   yesPrice: number; // Normalized probability: 0.000 - 1.000
   noPrice: number;  // Normalized probability: 0.000 - 1.000
   bestBid: number;
@@ -46,6 +80,9 @@ export interface VenueMarket {
   liquidityUsd: number;
   orderBook: OrderBook;
   externalUrl: string;
+  image?: string;
+  icon?: string;
+  submarkets?: SubMarketOutcome[];
 }
 
 // 7. Canonical Normalized Cross-Venue Market Pair
@@ -55,6 +92,9 @@ export interface NormalizedMarketPair {
   category: MarketCategory;
   expiryTimestamp: number;
   expiryDateFormatted: string;
+  image?: string;
+  icon?: string;
+  submarkets?: SubMarketOutcome[];
   polymarket: VenueMarket;
   kalshi: VenueMarket;
   divergenceBps: number;

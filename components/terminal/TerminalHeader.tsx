@@ -118,12 +118,10 @@ export function TerminalHeader() {
               ? "bg-blue-500/15 border-blue-500/40 text-blue-300 hover:bg-blue-500/25"
               : kalshiConnected
               ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-300 hover:bg-emerald-500/25"
-              : isDemoMode
-              ? "bg-amber-500/15 border-amber-500/30 text-amber-300 hover:bg-amber-500/25"
-              : "bg-[#00D688] hover:bg-[#00FFA3] text-black font-semibold border-[#00D688]"
+              : "bg-white/10 hover:bg-white/15 text-white font-medium border-white/20"
           }`}
         >
-          <KeyRound className="h-3.5 w-3.5" />
+          <KeyRound className="h-3.5 w-3.5 text-[#00FFA3]" />
           <span>
             {polymarketConnected && kalshiConnected
               ? "Poly + Kalshi Live"
@@ -131,8 +129,6 @@ export function TerminalHeader() {
               ? "Polymarket Live"
               : kalshiConnected
               ? "Kalshi Live"
-              : isDemoMode
-              ? `Demo: $${demoBalanceUsd.toLocaleString()}`
               : "Connect Accounts"}
           </span>
         </button>

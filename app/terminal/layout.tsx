@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { TerminalLayoutShell } from "@/components/terminal/TerminalLayoutShell";
+import "../globals.css";
 
 export const metadata: Metadata = {
   title: "Trayse Terminal — Normalized Prediction Intelligence",

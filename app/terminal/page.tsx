@@ -1,26 +1,20 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useTerminalStore } from "@/lib/store/terminal-store";
+import { MarketCategory } from "@/lib/types/terminal";
+import { PolymarketMarketCard } from "@/components/terminal/PolymarketMarketCard";
+import { KalshiMarketCard } from "@/components/terminal/KalshiMarketCard";
+import { usePolymarketStream } from "@/lib/hooks/usePolymarketStream";
 import {
-  INITIAL_MARKET_PAIRS,
-  generateTickUpdate,
-} from "@/lib/mock/market-data";
-import { NormalizedMarketPair, MarketCategory } from "@/lib/types/terminal";
-import { convertOdds } from "@/lib/market/normalization";
-import {
-  Star,
-  Zap,
-  TrendingUp,
-  SlidersHorizontal,
-  Landmark,
-  CloudLightning,
-  Cpu,
-  Coins,
-  Vote,
-  Sparkles,
   ArrowUpDown,
   Search,
+  Radio,
+  Layers,
+  ShieldCheck,
+  Globe2,
+  RotateCw,
+  Loader2,
 } from "lucide-react";
 
 type SortOption = "VOLUME_DESC" | "SPREAD_DESC" | "EXPIRY_ASC";
@@ -29,6 +23,8 @@ export default function TerminalMarketStreamPage() {
   const {
     activeCategory,
     setActiveCategory,
+    activeVenueTab,
+    setActiveVenueTab,
     searchQuery,
     setSearchQuery,
     oddsFormat,
@@ -36,30 +32,37 @@ export default function TerminalMarketStreamPage() {
     toggleWatchlist,
     setSelectedPairId,
     openOrderSlip,
+    marketPairs,
+    isLoadingMarkets,
+    loadLiveMarkets,
   } = useTerminalStore();
 
-  const [pairs, setPairs] = useState<NormalizedMarketPair[]>(INITIAL_MARKET_PAIRS);
   const [sortBy, setSortBy] = useState<SortOption>("VOLUME_DESC");
 
-  // Simulated live micro-ticks (every 3.5s) to make markets feel alive
+  // Load live markets dynamically on mount and when venue tab switches
   useEffect(() => {
-    const interval = setInterval(() => {
-      setPairs((prev) =>
-        prev.map((p) => {
-          // 40% probability of micro-tick per cycle
-          if (Math.random() < 0.4) {
-            return generateTickUpdate(p);
-          }
-          return p;
-        })
-      );
-    }, 3500);
+    loadLiveMarkets(activeVenueTab);
+  }, [activeVenueTab, loadLiveMarkets]);
 
-    return () => clearInterval(interval);
-  }, []);
+  // Extract all active Polymarket CLOB asset IDs (primary + submarkets) to stream via Web Worker
+  const assetIds = useMemo(() => {
+    const ids: string[] = [];
+    for (const p of marketPairs) {
+      if (p.polymarket?.assetId) ids.push(p.polymarket.assetId);
+      if (p.submarkets) {
+        for (const sub of p.submarkets) {
+          if (sub.assetId) ids.push(sub.assetId);
+        }
+      }
+    }
+    return ids;
+  }, [marketPairs]);
+
+  // Mount dedicated off-thread WebSocket stream and 16.6ms conflation worker
+  const { status: liveStatus } = usePolymarketStream(assetIds);
 
   const categories: { id: MarketCategory | "All"; label: string }[] = [
-    { id: "All", label: "All Markets" },
+    { id: "All", label: "All Categories" },
     { id: "Macro", label: "Macro" },
     { id: "Politics", label: "Politics" },
     { id: "Crypto", label: "Crypto" },
@@ -67,9 +70,16 @@ export default function TerminalMarketStreamPage() {
     { id: "Physical & Weather", label: "Weather" },
   ];
 
-  // Filtering
+  // Filtering by Category, Venue & Search
   const filteredPairs = useMemo(() => {
-    return pairs.filter((p) => {
+    return marketPairs.filter((p) => {
+      // Venue tab filter
+      if (activeVenueTab === "POLYMARKET") {
+        if (p.id.startsWith("kalshi-")) return false;
+      } else if (activeVenueTab === "KALSHI") {
+        if (p.id.startsWith("pm-")) return false;
+      }
+
       // Category filter
       if (activeCategory !== "All" && p.category !== activeCategory) {
         return false;
@@ -86,43 +96,120 @@ export default function TerminalMarketStreamPage() {
       }
       return true;
     });
-  }, [pairs, activeCategory, searchQuery]);
+  }, [marketPairs, activeCategory, activeVenueTab, searchQuery]);
 
   // Sorting
   const sortedPairs = useMemo(() => {
     const list = [...filteredPairs];
     if (sortBy === "VOLUME_DESC") {
-      list.sort((a, b) => b.polymarket.volume24h - a.polymarket.volume24h);
+      list.sort((a, b) => {
+        const volA =
+          activeVenueTab === "KALSHI"
+            ? a.kalshi.volume24h
+            : a.polymarket.volume24h;
+        const volB =
+          activeVenueTab === "KALSHI"
+            ? b.kalshi.volume24h
+            : b.polymarket.volume24h;
+        return volB - volA;
+      });
     } else if (sortBy === "SPREAD_DESC") {
       list.sort((a, b) => b.divergenceBps - a.divergenceBps);
     } else if (sortBy === "EXPIRY_ASC") {
       list.sort((a, b) => a.expiryTimestamp - b.expiryTimestamp);
     }
     return list;
-  }, [filteredPairs, sortBy]);
-
-  // Market Category Icon helper
-  const renderCategoryIcon = (category: MarketCategory) => {
-    switch (category) {
-      case "Macro":
-        return <Landmark className="h-4 w-4 text-sky-400" />;
-      case "Physical & Weather":
-        return <CloudLightning className="h-4 w-4 text-amber-400" />;
-      case "Tech & Equities":
-        return <Cpu className="h-4 w-4 text-purple-400" />;
-      case "Crypto":
-        return <Coins className="h-4 w-4 text-emerald-400" />;
-      case "Politics":
-        return <Vote className="h-4 w-4 text-rose-400" />;
-      default:
-        return <Sparkles className="h-4 w-4 text-blue-400" />;
-    }
-  };
+  }, [filteredPairs, sortBy, activeVenueTab]);
 
   return (
     <div className="flex flex-col h-full w-full max-w-7xl mx-auto px-4 sm:px-6 py-5 space-y-4">
-      {/* 1. TOP CONTROLS: Category Pills & Sorting Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#1F232F] pb-4">
+      {/* 1. TOP VENUE TABS: ALL | POLYMARKET | KALSHI */}
+      <div className="flex items-center justify-between border-b border-[#1A1D27] pb-3">
+        <div className="flex items-center gap-2">
+          {/* ALL MARKETS TAB */}
+          <button
+            type="button"
+            onClick={() => setActiveVenueTab("ALL")}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
+              activeVenueTab === "ALL"
+                ? "bg-white text-black shadow-md shadow-white/5"
+                : "bg-[#10121A] text-zinc-400 hover:text-white hover:bg-white/5 border border-[#1A1D27]"
+            }`}
+          >
+            <Globe2 className="h-4 w-4" />
+            <span>All Markets</span>
+            <span
+              className={`px-1.5 py-0.2 rounded text-[10px] font-mono ${
+                activeVenueTab === "ALL"
+                  ? "bg-black/10 text-black font-bold"
+                  : "bg-white/10 text-zinc-400"
+              }`}
+            >
+              {marketPairs.length}
+            </span>
+          </button>
+
+          {/* POLYMARKET MIRROR TAB */}
+          <button
+            type="button"
+            onClick={() => setActiveVenueTab("POLYMARKET")}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
+              activeVenueTab === "POLYMARKET"
+                ? "bg-emerald-500 text-black font-bold shadow-md shadow-emerald-500/20"
+                : "bg-[#10121A] text-zinc-400 hover:text-white hover:bg-white/5 border border-[#1A1D27]"
+            }`}
+          >
+            <div className="h-2 w-2 rounded-full bg-emerald-300" />
+            <span>Polymarket</span>
+            <span
+              className={`px-1.5 py-0.2 rounded text-[10px] font-mono ${
+                activeVenueTab === "POLYMARKET"
+                  ? "bg-black/20 text-black font-bold"
+                  : "bg-white/10 text-zinc-400"
+              }`}
+            >
+              {marketPairs.length}
+            </span>
+          </button>
+
+          {/* KALSHI MIRROR TAB */}
+          <button
+            type="button"
+            onClick={() => setActiveVenueTab("KALSHI")}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
+              activeVenueTab === "KALSHI"
+                ? "bg-sky-500 text-black font-bold shadow-md shadow-sky-500/20"
+                : "bg-[#10121A] text-zinc-400 hover:text-white hover:bg-white/5 border border-[#1A1D27]"
+            }`}
+          >
+            <ShieldCheck className="h-3.5 w-3.5" />
+            <span>Kalshi</span>
+            <span
+              className={`px-1.5 py-0.2 rounded text-[10px] font-mono ${
+                activeVenueTab === "KALSHI"
+                  ? "bg-black/20 text-black font-bold"
+                  : "bg-white/10 text-zinc-400"
+              }`}
+            >
+              {marketPairs.length}
+            </span>
+          </button>
+        </div>
+
+        {/* Live Stream Pulse Badge */}
+        <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#12141C] border border-[#1F232F] font-mono text-[10px]">
+          <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+          <span className="text-emerald-300 font-semibold flex items-center gap-1">
+            <Radio className="h-2.5 w-2.5" />
+            {liveStatus === "CONNECTED"
+              ? "LIVE CLOB STREAM (16ms)"
+              : "STREAM ACTIVE (16ms)"}
+          </span>
+        </div>
+      </div>
+
+      {/* 2. CATEGORY PILLS & SORTING BAR */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#1A1D27] pb-3">
         {/* Horizontal Category Navigation */}
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
           {categories.map((cat) => {
@@ -132,10 +219,10 @@ export default function TerminalMarketStreamPage() {
                 key={cat.id}
                 type="button"
                 onClick={() => setActiveCategory(cat.id)}
-                className={`whitespace-nowrap px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                className={`whitespace-nowrap px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
                   isActive
-                    ? "bg-white text-black font-semibold shadow-sm"
-                    : "bg-[#12141C] text-zinc-400 hover:text-white hover:bg-white/5 border border-[#1F232F]"
+                    ? "bg-white/20 text-white font-semibold border border-white/20"
+                    : "bg-[#10121A] text-zinc-400 hover:text-white hover:bg-white/5 border border-[#1A1D27]"
                 }`}
               >
                 {cat.label}
@@ -144,26 +231,37 @@ export default function TerminalMarketStreamPage() {
           })}
         </div>
 
-        {/* Right Side: Market Count & Sort Dropdown */}
+        {/* Right Side: Market Count, Sync Feeds & Sort Dropdown */}
         <div className="flex items-center justify-between sm:justify-end gap-3 text-xs text-zinc-400">
+          <button
+            type="button"
+            onClick={() => loadLiveMarkets(activeVenueTab)}
+            disabled={isLoadingMarkets}
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#10121A] hover:bg-[#161924] border border-[#1A1D27] text-zinc-300 transition-colors disabled:opacity-60 text-xs"
+            title="Refresh live catalog from Polymarket & Kalshi"
+          >
+            <RotateCw className={`h-3 w-3 text-zinc-400 ${isLoadingMarkets ? "animate-spin text-emerald-400" : ""}`} />
+            <span className="hidden sm:inline">{isLoadingMarkets ? "Syncing..." : "Sync Feeds"}</span>
+          </button>
+
           <span className="font-mono text-[11px] text-zinc-500">
             {sortedPairs.length} {sortedPairs.length === 1 ? "Market" : "Markets"}
           </span>
 
-          <div className="flex items-center gap-1.5 bg-[#12141C] border border-[#1F232F] rounded-lg px-2.5 py-1 text-xs">
+          <div className="flex items-center gap-1.5 bg-[#10121A] border border-[#1A1D27] rounded-lg px-2.5 py-1 text-xs">
             <ArrowUpDown className="h-3 w-3 text-zinc-500" />
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as SortOption)}
               className="bg-transparent text-zinc-300 focus:outline-none cursor-pointer pr-1"
             >
-              <option value="VOLUME_DESC" className="bg-[#12141C] text-white">
+              <option value="VOLUME_DESC" className="bg-[#10121A] text-white">
                 Highest Volume
               </option>
-              <option value="SPREAD_DESC" className="bg-[#12141C] text-white">
-                Highest Kalshi Spread
+              <option value="SPREAD_DESC" className="bg-[#10121A] text-white">
+                Highest Spread Divergence
               </option>
-              <option value="EXPIRY_ASC" className="bg-[#12141C] text-white">
+              <option value="EXPIRY_ASC" className="bg-[#10121A] text-white">
                 Expiring Soonest
               </option>
             </select>
@@ -171,9 +269,30 @@ export default function TerminalMarketStreamPage() {
         </div>
       </div>
 
-      {/* 2. MAIN STREAM: Pure Polymarket Market Rows */}
-      {sortedPairs.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 text-center rounded-2xl bg-[#0B0C10] border border-[#1F232F] p-6 space-y-3">
+      {/* 3. MAIN MARKET STREAM GRID */}
+      {isLoadingMarkets && sortedPairs.length === 0 ? (
+        <div className="space-y-3">
+          {[1, 2, 3, 4].map((i) => (
+            <div
+              key={i}
+              className="h-28 rounded-xl bg-[#0B0C10] border border-[#1A1D27] p-4 flex items-center justify-between animate-pulse"
+            >
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-xl bg-white/5" />
+                <div className="space-y-2">
+                  <div className="h-4 w-64 bg-white/10 rounded" />
+                  <div className="h-3 w-32 bg-white/5 rounded" />
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <div className="h-9 w-20 bg-white/5 rounded-lg" />
+                <div className="h-9 w-20 bg-white/5 rounded-lg" />
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : sortedPairs.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-20 text-center rounded-2xl bg-[#090A0E] border border-[#1A1D27] p-6 space-y-3">
           <Search className="h-8 w-8 text-zinc-600" />
           <h3 className="text-base font-semibold text-white">
             No prediction markets found
@@ -196,116 +315,32 @@ export default function TerminalMarketStreamPage() {
         <div className="space-y-2.5">
           {sortedPairs.map((pair) => {
             const isStarred = watchlists.includes(pair.id);
-            const yesOdds = convertOdds(pair.polymarket.yesPrice, oddsFormat);
-            const noOdds = convertOdds(pair.polymarket.noPrice, oddsFormat);
 
-            // Spread calculation vs Kalshi
-            const spreadPercent = (
-              Math.abs(pair.polymarket.yesPrice - pair.kalshi.yesPrice) * 100
-            ).toFixed(1);
+            // Kalshi Mirror Desk View
+            if (activeVenueTab === "KALSHI") {
+              return (
+                <KalshiMarketCard
+                  key={pair.id}
+                  pair={pair}
+                  isStarred={isStarred}
+                  onToggleWatchlist={toggleWatchlist}
+                  onOpenOrderSlip={openOrderSlip}
+                  oddsFormat={oddsFormat}
+                />
+              );
+            }
 
+            // Polymarket Mirror Desk View or All Markets View
             return (
-              <div
+              <PolymarketMarketCard
                 key={pair.id}
-                className="group relative rounded-xl bg-[#0B0C10] hover:bg-[#10121A] border border-[#1A1D27] hover:border-[#272B3A] p-4 transition-all duration-150 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm"
-              >
-                {/* LEFT: Star, Icon, Title, and Metadata Badges */}
-                <div className="flex items-start gap-3.5 flex-1 min-w-0">
-                  {/* Star Toggle */}
-                  <button
-                    type="button"
-                    onClick={() => toggleWatchlist(pair.id)}
-                    className="p-1 rounded text-zinc-600 hover:text-amber-400 transition-colors mt-0.5"
-                    title={isStarred ? "Remove from Watchlist" : "Add to Watchlist"}
-                  >
-                    <Star
-                      className={`h-4 w-4 ${
-                        isStarred
-                          ? "fill-amber-400 text-amber-400"
-                          : "text-zinc-600 group-hover:text-zinc-400"
-                      }`}
-                    />
-                  </button>
-
-                  {/* Category Thumbnail Avatar */}
-                  <div className="h-9 w-9 rounded-xl bg-[#12141C] border border-[#1F232F] flex items-center justify-center flex-shrink-0 mt-0.5">
-                    {renderCategoryIcon(pair.category)}
-                  </div>
-
-                  {/* Market Title & Metadata */}
-                  <div className="flex-1 min-w-0 space-y-1">
-                    <button
-                      type="button"
-                      onClick={() => setSelectedPairId(pair.id)}
-                      className="text-left font-semibold text-sm sm:text-[15px] text-white hover:text-[#00FFA3] transition-colors leading-snug line-clamp-2"
-                    >
-                      {pair.canonicalTitle}
-                    </button>
-
-                    <div className="flex flex-wrap items-center gap-2 text-[11px] text-zinc-400">
-                      <span className="px-1.5 py-0.2 rounded font-mono bg-white/5 border border-white/10 text-zinc-300">
-                        {pair.category}
-                      </span>
-
-                      <span>•</span>
-
-                      <span className="font-mono text-zinc-400">
-                        Resolves {pair.expiryDateFormatted}
-                      </span>
-
-                      <span>•</span>
-
-                      <span className="font-mono text-zinc-300 font-semibold">
-                        ${(pair.polymarket.volume24h / 1_000_000).toFixed(1)}M Vol
-                      </span>
-
-                      {/* Subtle Trayse Spread Badge */}
-                      {pair.divergenceBps > 100 && (
-                        <button
-                          type="button"
-                          onClick={() => setSelectedPairId(pair.id)}
-                          className="flex items-center gap-1 px-2 py-0.2 rounded font-mono text-[10px] bg-blue-500/15 border border-blue-500/30 text-blue-300 hover:bg-blue-500/25 transition-colors"
-                          title="Click to view Kalshi order book depth and spread"
-                        >
-                          <Zap className="h-3 w-3 text-blue-400" />
-                          <span>+{spreadPercent}% vs Kalshi</span>
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                {/* RIGHT: Polymarket Interactive Trade Buttons */}
-                <div className="flex items-center gap-2 sm:gap-2.5 flex-shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-[#1A1D27]">
-                  {/* BUY YES BUTTON */}
-                  <button
-                    type="button"
-                    onClick={() => openOrderSlip(pair.id, "YES")}
-                    className="flex-1 sm:flex-none flex items-center justify-between sm:justify-center gap-3 px-4 py-2.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 hover:border-emerald-500/60 transition-all text-emerald-400 font-mono group/btn"
-                  >
-                    <span className="text-xs font-semibold uppercase tracking-wider text-emerald-300">
-                      Buy Yes
-                    </span>
-                    <span className="text-sm font-bold text-white group-hover/btn:text-emerald-300">
-                      {yesOdds}
-                    </span>
-                  </button>
-
-                  {/* BUY NO BUTTON */}
-                  <button
-                    type="button"
-                    onClick={() => openOrderSlip(pair.id, "NO")}
-                    className="flex-1 sm:flex-none flex items-center justify-between sm:justify-center gap-3 px-4 py-2.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 hover:border-rose-500/60 transition-all text-rose-400 font-mono group/btn"
-                  >
-                    <span className="text-xs font-semibold uppercase tracking-wider text-rose-300">
-                      Buy No
-                    </span>
-                    <span className="text-sm font-bold text-white group-hover/btn:text-rose-300">
-                      {noOdds}
-                    </span>
-                  </button>
-                </div>
-              </div>
+                pair={pair}
+                isStarred={isStarred}
+                onToggleWatchlist={toggleWatchlist}
+                onSelectPair={setSelectedPairId}
+                onOpenOrderSlip={openOrderSlip}
+                oddsFormat={oddsFormat}
+              />
             );
           })}
         </div>

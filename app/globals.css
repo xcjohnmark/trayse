@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 @font-face {
   font-family: 'NewBlack';
   src: url('/assets/fonts/NewBlack_TTF/NewBlackTypeface-Bold.ttf') format('truetype');
@@ -69,10 +73,6 @@
   font-style: normal;
   font-display: swap;
 }
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
 
 :root {
   --bg: #111113;
@@ -228,4 +228,44 @@ body {
 }
 .terminal-scroll::-webkit-scrollbar-thumb:hover {
   background: #2E3446;
+}
+
+/* Bloomberg Terminal High-Frequency Tick Flashes */
+@keyframes tick-flash-green {
+  0% {
+    background-color: rgba(0, 255, 163, 0.28);
+    box-shadow: 0 0 16px rgba(0, 255, 163, 0.25);
+  }
+  100% {
+    background-color: transparent;
+    box-shadow: none;
+  }
+}
+
+@keyframes tick-flash-red {
+  0% {
+    background-color: rgba(255, 71, 87, 0.28);
+    box-shadow: 0 0 16px rgba(255, 71, 87, 0.25);
+  }
+  100% {
+    background-color: transparent;
+    box-shadow: none;
+  }
+}
+
+.tick-flash-green {
+  animation: tick-flash-green 650ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.tick-flash-red {
+  animation: tick-flash-red 650ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes pulse-subtle {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.animate-pulse-subtle {
+  animation: pulse-subtle 2s ease-in-out infinite;
 }

@@ -54,6 +54,7 @@ export const INITIAL_MARKET_PAIRS: NormalizedMarketPair[] = [
     polymarket: {
       venue: "polymarket",
       marketId: "pm-fed-rate-nov26",
+      assetId: "107505882767731489358349912513945399560393482969656700824895970500493757150417",
       ticker: "PM-FED-CUT",
       yesPrice: 0.58,
       noPrice: 0.42,
@@ -92,6 +93,7 @@ export const INITIAL_MARKET_PAIRS: NormalizedMarketPair[] = [
     polymarket: {
       venue: "polymarket",
       marketId: "pm-nvda-cap-35t",
+      assetId: "21742633143463906290569050155826241533067272736856161495190783571179610340455",
       ticker: "PM-NVDA-35T",
       yesPrice: 0.44,
       noPrice: 0.56,
@@ -129,6 +131,7 @@ export const INITIAL_MARKET_PAIRS: NormalizedMarketPair[] = [
     polymarket: {
       venue: "polymarket",
       marketId: "pm-hurricane-cat4",
+      assetId: "33894728919028456102938475619283746519283746519283746519283746519283746519283",
       ticker: "PM-HURR-CAT4",
       yesPrice: 0.34,
       noPrice: 0.66,
@@ -166,6 +169,7 @@ export const INITIAL_MARKET_PAIRS: NormalizedMarketPair[] = [
     polymarket: {
       venue: "polymarket",
       marketId: "pm-pop-vote-margin",
+      assetId: "49201948572910394857192847561928374651928374651928374651928374651928374651928",
       ticker: "PM-POPVOTE-25",
       yesPrice: 0.52,
       noPrice: 0.48,
@@ -203,6 +207,7 @@ export const INITIAL_MARKET_PAIRS: NormalizedMarketPair[] = [
     polymarket: {
       venue: "polymarket",
       marketId: "pm-sol-tps-65k",
+      assetId: "58291049582910394857291029384756192837465192837465192837465192837465192837465",
       ticker: "PM-SOL-65K",
       yesPrice: 0.56,
       noPrice: 0.44,
@@ -241,6 +246,7 @@ export const INITIAL_MARKET_PAIRS: NormalizedMarketPair[] = [
     polymarket: {
       venue: "polymarket",
       marketId: "pm-spy-6200-yearend",
+      assetId: "69102938475619283746519283746519283746519283746519283746519283746519283746519",
       ticker: "PM-SPY-6200",
       yesPrice: 0.48,
       noPrice: 0.52,
@@ -278,6 +284,7 @@ export const INITIAL_MARKET_PAIRS: NormalizedMarketPair[] = [
     polymarket: {
       venue: "polymarket",
       marketId: "pm-cpi-24-q4",
+      assetId: "71029384756192837465192837465192837465192837465192837465192837465192837465192",
       ticker: "PM-CPI-24",
       yesPrice: 0.38,
       noPrice: 0.62,
@@ -315,6 +322,7 @@ export const INITIAL_MARKET_PAIRS: NormalizedMarketPair[] = [
     polymarket: {
       venue: "polymarket",
       marketId: "pm-btc-120k",
+      assetId: "81928374651928374651928374651928374651928374651928374651928374651928374651928",
       ticker: "PM-BTC-120K",
       yesPrice: 0.62,
       noPrice: 0.38,

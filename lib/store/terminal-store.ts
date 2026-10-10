@@ -2,11 +2,16 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import {
   BlockchainRail,
+  ConflatedMarketTick,
   JournalEntry,
   MarketCategory,
+  NormalizedMarketPair,
   OddsFormat,
   SessionKeyConfig,
+  WebSocketConnectionStatus,
 } from "../types/terminal";
+import { INITIAL_MARKET_PAIRS } from "../mock/market-data";
+import { calculateSpreadBps, calculateSyntheticArbitrage } from "../market/normalization";
 
 export type ModalType =
   | "SESSION_KEYS"
@@ -22,13 +27,19 @@ export type ModalType =
 export interface TerminalState {
   // 1. Navigation & View Modes
   activeRail: BlockchainRail;
+  activeVenueTab: "ALL" | "POLYMARKET" | "KALSHI";
   oddsFormat: OddsFormat;
   activeCategory: MarketCategory | "All";
   searchQuery: string;
   selectedPairId: string | null;
   isSidebarCollapsed: boolean;
 
-  // 1b. Onboarding & Trader Persona
+  // 1b. Real-Time Market Data Stream (Bloomberg-Grade)
+  marketPairs: NormalizedMarketPair[];
+  isLoadingMarkets: boolean;
+  polymarketWsStatus: WebSocketConnectionStatus;
+
+  // 1c. Onboarding & Trader Persona
   hasOnboarded: boolean;
   traderPersona: "ARBITRAGEUR" | "QUANT" | "ANALYST" | "HEDGER";
 
@@ -58,6 +69,7 @@ export interface TerminalState {
   toggleSidebar: () => void;
   setSidebarCollapsed: (collapsed: boolean) => void;
   setActiveRail: (rail: BlockchainRail) => void;
+  setActiveVenueTab: (tab: "ALL" | "POLYMARKET" | "KALSHI") => void;
   setOddsFormat: (format: OddsFormat) => void;
   setActiveCategory: (cat: MarketCategory | "All") => void;
   setSearchQuery: (q: string) => void;
@@ -84,6 +96,10 @@ export interface TerminalState {
   revokeSessionKey: () => void;
   openModal: (modal: ModalType, pairId?: string | null) => void;
   closeModal: () => void;
+  setPolymarketWsStatus: (status: WebSocketConnectionStatus) => void;
+  updatePolymarketTick: (tick: ConflatedMarketTick) => void;
+  setMarketPairs: (pairs: NormalizedMarketPair[]) => void;
+  loadLiveMarkets: (venue?: "ALL" | "POLYMARKET" | "KALSHI") => Promise<void>;
 }
 
 const DEFAULT_SESSION_KEY: SessionKeyConfig = {
@@ -132,18 +148,24 @@ export const useTerminalStore = create<TerminalState>()(
     (set, get) => ({
       // Default state
       activeRail: "DUAL",
+      activeVenueTab: "ALL",
       oddsFormat: "PROBABILITY",
       activeCategory: "All",
       searchQuery: "",
       selectedPairId: null,
       isSidebarCollapsed: false,
 
+      // Live streaming state
+      marketPairs: INITIAL_MARKET_PAIRS,
+      isLoadingMarkets: false,
+      polymarketWsStatus: "DISCONNECTED",
+
       hasOnboarded: false,
       traderPersona: "ARBITRAGEUR",
 
       polymarketConnected: false,
       kalshiConnected: false,
-      isDemoMode: true,
+      isDemoMode: false,
       demoBalanceUsd: 10000.0,
 
       orderSlipContext: null,
@@ -163,6 +185,7 @@ export const useTerminalStore = create<TerminalState>()(
       setSidebarCollapsed: (isSidebarCollapsed) => set({ isSidebarCollapsed }),
 
       setActiveRail: (activeRail) => set({ activeRail }),
+      setActiveVenueTab: (activeVenueTab) => set({ activeVenueTab }),
 
       setOddsFormat: (oddsFormat) => set({ oddsFormat }),
 
@@ -262,6 +285,94 @@ export const useTerminalStore = create<TerminalState>()(
       closeModal: () => {
         set({ activeModal: null, modalContextPairId: null });
       },
+
+      setPolymarketWsStatus: (polymarketWsStatus) => set({ polymarketWsStatus }),
+
+      setMarketPairs: (marketPairs) => set({ marketPairs }),
+
+      updatePolymarketTick: (tick) => {
+        const currentPairs = get().marketPairs;
+        let matched = false;
+
+        const updatedPairs = currentPairs.map((p) => {
+          const isMatch =
+            (p.polymarket.assetId && p.polymarket.assetId === tick.assetId) ||
+            p.polymarket.marketId === tick.pairId ||
+            p.id === tick.pairId;
+
+          if (!isMatch) return p;
+
+          matched = true;
+          const newYes = tick.yesPrice;
+          const newNo = tick.noPrice;
+          const divergenceBps = calculateSpreadBps(newYes, p.kalshi.yesPrice);
+          const arbResult = calculateSyntheticArbitrage(
+            newYes,
+            newNo,
+            p.kalshi.yesPrice,
+            p.kalshi.noPrice
+          );
+
+          return {
+            ...p,
+            divergenceBps,
+            hasArbitrage: arbResult.hasArb,
+            polymarket: {
+              ...p.polymarket,
+              yesPrice: newYes,
+              noPrice: newNo,
+              bestBid: tick.bestBid || p.polymarket.bestBid,
+              bestAsk: tick.bestAsk || p.polymarket.bestAsk,
+              volume24h: tick.volume24h || p.polymarket.volume24h,
+            },
+          };
+        });
+
+        if (matched) {
+          set({ marketPairs: updatedPairs });
+        }
+      },
+
+      loadLiveMarkets: async (venue = "ALL") => {
+        set({ isLoadingMarkets: true });
+        try {
+          const promises: Promise<NormalizedMarketPair[]>[] = [];
+
+          if (venue === "ALL" || venue === "POLYMARKET") {
+            promises.push(
+              fetch("/api/markets/polymarket?limit=60")
+                .then((r) => r.json())
+                .then((d) => (d.success && Array.isArray(d.pairs) ? d.pairs : []))
+                .catch(() => [])
+            );
+          }
+
+          if (venue === "ALL" || venue === "KALSHI") {
+            promises.push(
+              fetch("/api/markets/kalshi?limit=60")
+                .then((r) => r.json())
+                .then((d) => (d.success && Array.isArray(d.pairs) ? d.pairs : []))
+                .catch(() => [])
+            );
+          }
+
+          const results = await Promise.all(promises);
+          const fetchedPairs = results.flat();
+
+          if (fetchedPairs.length > 0) {
+            const existingIds = new Set(fetchedPairs.map((p) => p.id));
+            const preservedInitial = INITIAL_MARKET_PAIRS.filter((p) => !existingIds.has(p.id));
+            set({
+              marketPairs: [...fetchedPairs, ...preservedInitial],
+              isLoadingMarkets: false,
+            });
+          } else {
+            set({ isLoadingMarkets: false });
+          }
+        } catch {
+          set({ isLoadingMarkets: false });
+        }
+      },
     }),
     {
       name: "trayse-terminal-storage",
@@ -273,6 +384,7 @@ export const useTerminalStore = create<TerminalState>()(
         sessionKey: state.sessionKey,
         oddsFormat: state.oddsFormat,
         activeRail: state.activeRail,
+        activeVenueTab: state.activeVenueTab,
         isDemoMode: state.isDemoMode,
         demoBalanceUsd: state.demoBalanceUsd,
         polymarketConnected: state.polymarketConnected,
