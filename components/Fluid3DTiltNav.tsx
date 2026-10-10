@@ -270,32 +270,32 @@ export default function Fluid3DTiltNav({
         */}
         {/* Brand Emblem */}
         <button
+          onClick={() => {
+            window.location.href = "/";
+          }}
           aria-label="Trayse Home"
-          className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#23252c] flex items-center justify-center border border-white/15 hover:border-white/35 transition-all shadow-inner group relative z-10"
+          className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#23252c] flex items-center justify-center border border-white/15 hover:border-white/35 transition-all shadow-inner group relative z-10 shrink-0"
           style={{ transform: "translateZ(14px)" }}
         >
           <svg
-            className="w-4 h-4 text-white group-hover:scale-110 transition-transform"
-            viewBox="0 0 124 114"
+            className="w-[22px] h-[18.5px] sm:w-[26px] sm:h-[21.5px] text-white group-hover:scale-105 transition-transform"
+            viewBox="0 0 60 50"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
           >
-            <rect x="32" y="77" width="20" height="5" fill="currentColor" />
-            <rect x="52" y="42" width="20" height="5" fill="currentColor" />
-            <rect x="52" y="47" width="20" height="5" fill="currentColor" />
-            <rect x="52" y="62" width="20" height="5" fill="currentColor" />
-            <rect x="52" y="67" width="20" height="5" fill="currentColor" />
-            <rect x="72" y="32" width="20" height="5" fill="currentColor" />
-            <rect x="72" y="37" width="20" height="5" fill="currentColor" />
-            <rect x="72" y="52" width="20" height="5" fill="currentColor" />
-            <rect x="72" y="57" width="20" height="5" fill="currentColor" />
-            <rect x="72" y="72" width="20" height="5" fill="currentColor" />
-            <rect x="72" y="77" width="20" height="5" fill="currentColor" />
-            <rect x="32" y="32" width="20" height="5" fill="currentColor" />
-            <rect x="32" y="37" width="20" height="5" fill="currentColor" />
-            <rect x="32" y="52" width="20" height="5" fill="currentColor" />
-            <rect x="32" y="57" width="20" height="5" fill="currentColor" />
-            <rect x="32" y="72" width="20" height="5" fill="currentColor" />
+            {/* Column 1 (Left) */}
+            <rect x="0" y="0" width="20" height="10" fill="currentColor" />
+            <rect x="0" y="20" width="20" height="10" fill="currentColor" />
+            <rect x="0" y="40" width="20" height="10" fill="currentColor" />
+
+            {/* Column 2 (Center) */}
+            <rect x="20" y="10" width="20" height="10" fill="currentColor" />
+            <rect x="20" y="30" width="20" height="10" fill="currentColor" />
+
+            {/* Column 3 (Right) */}
+            <rect x="40" y="0" width="20" height="10" fill="currentColor" />
+            <rect x="40" y="20" width="20" height="10" fill="currentColor" />
+            <rect x="40" y="40" width="20" height="10" fill="currentColor" />
           </svg>
         </button>
 
@@ -315,24 +315,24 @@ export default function Fluid3DTiltNav({
             Explore
           </button>
           <button
-            onClick={() => setActiveTab("devs")}
+            onClick={() => setActiveTab("resources")}
             className={`transition-colors ${
-              activeTab === "devs"
+              activeTab === "resources"
                 ? "text-white"
                 : "text-zinc-400 hover:text-white"
             }`}
           >
-            For Developers
+            Resources
           </button>
           <button
-            onClick={() => setActiveTab("blog")}
+            onClick={() => setActiveTab("faq")}
             className={`transition-colors ${
-              activeTab === "blog"
+              activeTab === "faq"
                 ? "text-white"
                 : "text-zinc-400 hover:text-white"
             }`}
           >
-            Blog
+            FAQ
           </button>
         </div>
 
@@ -344,7 +344,7 @@ export default function Fluid3DTiltNav({
           className="font-sans bg-white text-black font-semibold text-[13px] tracking-[-0.02em] px-4 sm:px-5 py-1.5 sm:py-2 rounded-full hover:bg-zinc-200 active:scale-95 transition-all shadow-[0_2px_8px_rgba(0,0,0,0.2)] whitespace-nowrap relative z-10"
           style={{ transform: "translateZ(12px)" }}
         >
-          Sign in
+          Terminal
         </button>
       </nav>
     </header>

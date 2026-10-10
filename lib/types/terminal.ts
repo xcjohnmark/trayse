@@ -39,7 +39,8 @@ export type MarketCategory =
   | 'Tech & Equities'
   | 'Physical & Weather'
   | 'Politics'
-  | 'Crypto';
+  | 'Crypto'
+  | 'Sports';
 
 // 4. Single Order Book Depth Level
 export interface OrderBookLevel {

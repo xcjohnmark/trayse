@@ -29,12 +29,12 @@ for tick in client.stream_pairs(categories=["Macro", "Equities"]):
 
   const runSimulation = () => {
     setIsRunning(true);
-    setLogs([{ text: "[TRAYSE-SDK] Initializing Yellowstone gRPC client on Solana Mainnet...", color: "text-zinc-400" }]);
+    setLogs([{ text: "[TRAYSE-SDK] Initializing real-time stream client...", color: "text-zinc-400" }]);
     
     setTimeout(() => {
       setLogs((prev) => [
         ...prev,
-        { text: "[TRAYSE-SDK] Ingesting dual CLOB feeds: Polymarket CLOB [OK] | Kalshi CFTC v2 [OK]", color: "text-cyan-400" },
+        { text: "[TRAYSE-SDK] Ingesting feeds: Polymarket [OK] | Kalshi [OK]", color: "text-cyan-400" },
         { text: "[TRAYSE-SDK] Scanning cross-venue order books across categories: ['Macro', 'Equities']", color: "text-zinc-400" },
       ]);
     }, 500);
@@ -60,9 +60,9 @@ for tick in client.stream_pairs(categories=["Macro", "Equities"]):
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-3 sm:p-5 select-none animate-in fade-in duration-150">
-      <div className="w-full max-w-2xl rounded-xl border border-[#1F232F] bg-[#090A0E] text-white shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
+      <div className="w-full max-w-2xl rounded-xl border border-[#1E2638] bg-[#121722] text-white shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
         {/* Modal Header */}
-        <div className="flex items-center justify-between border-b border-[#1F232F] px-5 py-3.5 bg-[#12141C]">
+        <div className="flex items-center justify-between border-b border-[#1E2638] px-5 py-3.5 bg-[#0F131C]">
           <div className="flex items-center gap-2.5">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#00D688]/10 border border-[#00D688]/30">
               <Code2 className="h-4 w-4 text-[#00FFA3]" />
@@ -86,7 +86,7 @@ for tick in client.stream_pairs(categories=["Macro", "Equities"]):
         </div>
 
         {/* Tab Switcher */}
-        <div className="flex border-b border-[#1F232F] bg-black px-5">
+        <div className="flex border-b border-[#1E2638] bg-[#0B0E14] px-5">
           <button
             type="button"
             onClick={() => setActiveTab("PYTHON_SDK")}
@@ -122,7 +122,7 @@ for tick in client.stream_pairs(categories=["Macro", "Equities"]):
                 <button
                   type="button"
                   onClick={handleCopy}
-                  className="flex items-center gap-1.5 text-zinc-300 hover:text-white bg-[#12141C] border border-[#1F232F] px-2.5 py-1 rounded"
+                  className="flex items-center gap-1.5 text-zinc-300 hover:text-white bg-[#182030] border border-[#242E44] px-2.5 py-1 rounded"
                 >
                   {copied ? <Check className="h-3 w-3 text-[#00FFA3]" /> : <Copy className="h-3 w-3" />}
                   <span>{copied ? "Copied" : "Copy Code"}</span>
@@ -130,7 +130,7 @@ for tick in client.stream_pairs(categories=["Macro", "Equities"]):
               </div>
 
               {/* Syntax-Highlighted Code Editor */}
-              <div className="rounded-lg bg-black border border-[#1F232F] p-3.5 text-[11px] leading-relaxed overflow-x-auto text-zinc-200">
+              <div className="rounded-lg bg-[#0A0D14] border border-[#1E2638] p-3.5 text-[11px] leading-relaxed overflow-x-auto text-zinc-200">
                 <pre className="font-mono">
                   <span className="text-purple-400">import</span> trayse{"\n\n"}
                   client = trayse.<span className="text-blue-400">Client</span>(api_key=<span className="text-emerald-300">&quot;trayse_live_...&quot;</span>){"\n\n"}
@@ -164,8 +164,8 @@ for tick in client.stream_pairs(categories=["Macro", "Equities"]):
 
               {/* Terminal Output Console */}
               {logs.length > 0 && (
-                <div className="rounded-lg bg-black/95 border border-[#1F232F] p-3.5 space-y-1.5 text-[11px] font-mono shadow-inner animate-in fade-in duration-150">
-                  <div className="text-zinc-500 pb-1.5 border-b border-[#1F232F] flex items-center justify-between">
+                <div className="rounded-lg bg-[#0A0D14] border border-[#1E2638] p-3.5 space-y-1.5 text-[11px] font-mono shadow-inner animate-in fade-in duration-150">
+                  <div className="text-zinc-500 pb-1.5 border-b border-[#1E2638] flex items-center justify-between">
                     <span>SANDBOX TERMINAL CONSOLE:</span>
                     <span className="text-[#00FFA3] text-[10px]">● LIVE TAPE</span>
                   </div>
@@ -179,7 +179,7 @@ for tick in client.stream_pairs(categories=["Macro", "Equities"]):
             </div>
           ) : (
             <div className="space-y-3.5 text-xs font-mono leading-relaxed">
-              <div className="p-3.5 rounded-lg bg-[#12141C] border border-[#1F232F] text-zinc-300 space-y-1.5">
+              <div className="p-3.5 rounded-lg bg-[#182030] border border-[#242E44] text-zinc-300 space-y-1.5">
                 <div className="text-purple-400 font-bold flex items-center gap-1.5">
                   <Sparkles className="h-3.5 w-3.5" />
                   <span>Autonomous AI Agent Micro-Monetization:</span>
@@ -192,7 +192,7 @@ for tick in client.stream_pairs(categories=["Macro", "Equities"]):
               </div>
 
               {/* JSON Request / Response Schema */}
-              <div className="rounded-lg bg-black border border-purple-500/30 p-3.5 space-y-2 text-zinc-300">
+              <div className="rounded-lg bg-[#0A0D14] border border-purple-500/40 p-3.5 space-y-2 text-zinc-300">
                 <div className="text-[10px] text-zinc-500 uppercase tracking-wider">
                   HTTP / SOLANA ACTIONS REQUEST &amp; RESPONSE SCHEMA
                 </div>
@@ -211,7 +211,7 @@ Response: 200 OK
   "confidence_interval": [0.651, 0.718],
   "optimal_venue_routing": {
     "buy_venue": "kalshi",
-    "contract_ticker": "KXFEDNOV26",
+    "contract_ticker": "FED-NOV26",
     "recommended_allocation_usd": 500,
     "synthetic_arbitrage_roi": "+5.26%"
   },
@@ -232,7 +232,7 @@ Response: 200 OK
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between border-t border-[#1F232F] px-5 py-3.5 bg-[#12141C]">
+        <div className="flex items-center justify-between border-t border-[#1E2638] px-5 py-3.5 bg-[#0F131C]">
           <span className="text-zinc-500 text-[10px] font-mono">
             API Gateway: api.trayse.app/v1 • Python Package: trayse-sdk v1.0.4
           </span>

@@ -117,10 +117,10 @@ export default function JournalPage() {
       {/* 1. Top Metrics Summary */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {/* Total Capital Invested */}
-        <div className="rounded-lg border border-[#1F232F] bg-[#0C0D12] p-3">
-          <div className="text-[10px] font-mono text-zinc-500 flex items-center justify-between">
+        <div className="rounded-xl border border-[#1E2638] bg-[#121722] p-3.5 shadow-lg shadow-black/20">
+          <div className="text-[10px] font-mono text-[#94A3B8] flex items-center justify-between">
             <span>TOTAL CAPITAL INVESTED</span>
-            <DollarSign className="h-3 w-3 text-zinc-400" />
+            <DollarSign className="h-3 w-3 text-[#94A3B8]" />
           </div>
           <div className="text-xl font-bold font-mono text-white mt-1">
             ${totalCapitalInvested.toLocaleString()} USD
@@ -128,19 +128,19 @@ export default function JournalPage() {
         </div>
 
         {/* Win Rate % */}
-        <div className="rounded-lg border border-[#1F232F] bg-[#0C0D12] p-3">
-          <div className="text-[10px] font-mono text-zinc-500 flex items-center justify-between">
+        <div className="rounded-xl border border-[#1E2638] bg-[#121722] p-3.5 shadow-lg shadow-black/20">
+          <div className="text-[10px] font-mono text-[#94A3B8] flex items-center justify-between">
             <span>WIN RATE %</span>
-            <Award className="h-3 w-3 text-purple-400" />
+            <Award className="h-3 w-3 text-[#A78BFA]" />
           </div>
-          <div className="text-xl font-bold font-mono text-purple-300 mt-1">
+          <div className="text-xl font-bold font-mono text-[#A78BFA] mt-1">
             {winRatePercent}%
           </div>
         </div>
 
         {/* Realized PnL */}
-        <div className="rounded-lg border border-[#1F232F] bg-[#0C0D12] p-3">
-          <div className="text-[10px] font-mono text-zinc-500 flex items-center justify-between">
+        <div className="rounded-xl border border-[#1E2638] bg-[#121722] p-3.5 shadow-lg shadow-black/20">
+          <div className="text-[10px] font-mono text-[#94A3B8] flex items-center justify-between">
             <span>REALIZED PNL</span>
             <TrendingUp className="h-3 w-3 text-[#00FFA3]" />
           </div>
@@ -150,19 +150,19 @@ export default function JournalPage() {
         </div>
 
         {/* Open Trade Count */}
-        <div className="rounded-lg border border-[#1F232F] bg-[#0C0D12] p-3">
-          <div className="text-[10px] font-mono text-zinc-500 flex items-center justify-between">
+        <div className="rounded-xl border border-[#1E2638] bg-[#121722] p-3.5 shadow-lg shadow-black/20">
+          <div className="text-[10px] font-mono text-[#94A3B8] flex items-center justify-between">
             <span>OPEN TRADE COUNT</span>
-            <Clock className="h-3 w-3 text-amber-400" />
+            <Clock className="h-3 w-3 text-[#F59E0B]" />
           </div>
-          <div className="text-xl font-bold font-mono text-amber-300 mt-1">
+          <div className="text-xl font-bold font-mono text-[#F59E0B] mt-1">
             {openTradeCount} Active
           </div>
         </div>
       </div>
 
       {/* 2. Control Bar with "Log Trade" Trigger & Export Actions */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-[#0C0D12] border border-[#1F232F] p-3 rounded-lg">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-[#121722] border border-[#1E2638] p-3.5 rounded-xl shadow-lg shadow-black/20">
         <div className="flex items-center gap-2.5">
           <div className="p-2 rounded-lg bg-[#00FFA3]/10 border border-[#00FFA3]/20 text-[#00FFA3]">
             <BookOpen className="h-4 w-4" />
@@ -171,7 +171,7 @@ export default function JournalPage() {
             <h2 className="text-sm sm:text-base font-bold text-white tracking-wide">
               NON-CUSTODIAL TRADE AUDIT JOURNAL
             </h2>
-            <p className="text-xs text-zinc-400 font-mono mt-0.5">
+            <p className="text-xs text-[#94A3B8] font-mono mt-0.5">
               100% Client-Side Local Storage • Audit Verification Logs
             </p>
           </div>
@@ -179,16 +179,16 @@ export default function JournalPage() {
 
         <div className="flex items-center gap-2">
           {/* Status Filter Pills */}
-          <div className="flex items-center gap-1 bg-[#12141C] border border-[#1F232F] p-1 rounded-lg text-xs font-mono">
+          <div className="flex items-center gap-1 bg-[#0F131C] border border-[#1E2638] p-1 rounded-lg text-xs font-mono">
             {["ALL", "OPEN", "WON", "LOST"].map((st) => (
               <button
                 key={st}
                 type="button"
                 onClick={() => setFilterStatus(st)}
-                className={`px-2 py-0.5 rounded text-[11px] transition-colors ${
+                className={`px-2.5 py-0.5 rounded text-[11px] transition-colors ${
                   filterStatus === st
-                    ? "bg-[#00D688]/20 text-[#00FFA3] font-bold"
-                    : "text-zinc-400 hover:text-white"
+                    ? "bg-[#00D688]/20 text-[#00FFA3] font-bold border border-[#00D688]/30"
+                    : "text-[#94A3B8] hover:text-white"
                 }`}
               >
                 {st}
@@ -200,10 +200,10 @@ export default function JournalPage() {
           <button
             type="button"
             onClick={handleExportCsv}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#161922] hover:bg-[#1E2230] border border-[#1F232F] text-zinc-200 hover:text-white text-xs font-mono transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#182030] hover:bg-[#202B3E] border border-[#242E44] text-[#CBD5E1] hover:text-white text-xs font-mono transition-colors"
             title="Export CSV audit file"
           >
-            <Download className="h-3.5 w-3.5 text-zinc-400" />
+            <Download className="h-3.5 w-3.5 text-[#94A3B8]" />
             <span>Export CSV</span>
           </button>
 
@@ -211,10 +211,10 @@ export default function JournalPage() {
           <button
             type="button"
             onClick={handleExportJson}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#161922] hover:bg-[#1E2230] border border-[#1F232F] text-zinc-200 hover:text-white text-xs font-mono transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#182030] hover:bg-[#202B3E] border border-[#242E44] text-[#CBD5E1] hover:text-white text-xs font-mono transition-colors"
             title="Export JSON audit file"
           >
-            <FileText className="h-3.5 w-3.5 text-zinc-400" />
+            <FileText className="h-3.5 w-3.5 text-[#94A3B8]" />
             <span>Export JSON</span>
           </button>
 
@@ -222,7 +222,7 @@ export default function JournalPage() {
           <button
             type="button"
             onClick={() => setIsLogModalOpen(true)}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[#00D688] hover:bg-[#00FFA3] text-black font-mono font-bold text-xs transition-colors shadow-md shadow-[#00FFA3]/10"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[#00FFA3] hover:bg-[#00D688] text-black font-mono font-bold text-xs transition-colors shadow-md shadow-[#00FFA3]/15 active:scale-[0.98]"
           >
             <Plus className="h-3.5 w-3.5" />
             <span>Log Trade</span>
@@ -231,11 +231,11 @@ export default function JournalPage() {
       </div>
 
       {/* 3. Trade History Table */}
-      <div className="rounded-lg border border-[#1F232F] bg-[#090A0E] overflow-hidden flex flex-col flex-1">
+      <div className="rounded-xl border border-[#1E2638] bg-[#121722] overflow-hidden flex flex-col flex-1 shadow-lg shadow-black/20">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-[#1F232F] bg-[#0E1017] text-[10px] font-mono text-zinc-500 uppercase tracking-wider">
+              <tr className="border-b border-[#1E2638] bg-[#0F131C] text-[10px] font-mono text-[#94A3B8] uppercase tracking-wider">
                 <th className="py-2.5 px-3">Date</th>
                 <th className="py-2.5 px-3 min-w-[200px]">Market Title</th>
                 <th className="py-2.5 px-3">Venue</th>
@@ -248,7 +248,7 @@ export default function JournalPage() {
                 <th className="py-2.5 px-3 text-center">Status Toggle</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#1F232F] text-xs font-mono">
+            <tbody className="divide-y divide-[#1E2638]/60 text-xs font-mono">
               {filteredEntries.length === 0 ? (
                 <tr>
                   <td colSpan={10} className="text-center py-12 text-zinc-500 font-mono">
@@ -265,22 +265,22 @@ export default function JournalPage() {
                   });
 
                   return (
-                    <tr key={entry.id} className="hover:bg-[#12141C]/60 transition-colors">
+                    <tr key={entry.id} className="hover:bg-[#182030] transition-colors">
                       {/* 1. Date */}
-                      <td className="py-3 px-3 text-zinc-400 whitespace-nowrap text-[11px]">
+                      <td className="py-3 px-3 text-[#94A3B8] whitespace-nowrap text-[11px]">
                         {dateStr}
                       </td>
 
                       {/* 2. Market Title */}
                       <td className="py-3 px-3">
-                        <div className="font-semibold text-zinc-200 line-clamp-1">
+                        <div className="font-semibold text-white line-clamp-1">
                           {entry.marketTitle}
                         </div>
                       </td>
 
                       {/* 3. Venue */}
                       <td className="py-3 px-3">
-                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-white/10 text-zinc-300">
+                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#182030] border border-[#242E44] text-[#CBD5E1]">
                           {entry.venue}
                         </span>
                       </td>
@@ -292,8 +292,8 @@ export default function JournalPage() {
                             entry.position === "SYNTHETIC_ARB"
                               ? "bg-[#00FFA3]/15 text-[#00FFA3] border border-[#00FFA3]/30"
                               : entry.position === "YES"
-                              ? "bg-purple-500/15 text-purple-300"
-                              : "bg-blue-500/15 text-blue-300"
+                              ? "bg-purple-500/15 text-purple-300 border border-purple-500/30"
+                              : "bg-blue-500/15 text-blue-300 border border-blue-500/30"
                           }`}
                         >
                           {entry.position}
@@ -306,7 +306,7 @@ export default function JournalPage() {
                       </td>
 
                       {/* 6. Entry */}
-                      <td className="py-3 px-3 text-right text-zinc-300">
+                      <td className="py-3 px-3 text-right text-[#CBD5E1]">
                         ${entry.entryPrice.toFixed(3)}
                       </td>
 
@@ -320,7 +320,7 @@ export default function JournalPage() {
                               ? "bg-[#00FFA3]/15 text-[#00FFA3] border-[#00FFA3]/40"
                               : entry.status === "LOST"
                               ? "bg-rose-500/10 text-rose-400 border-rose-500/30"
-                              : "bg-zinc-800 text-zinc-400 border-zinc-700"
+                              : "bg-[#182030] text-[#94A3B8] border-[#242E44]"
                           }`}
                         >
                           {entry.status}
@@ -333,15 +333,15 @@ export default function JournalPage() {
                           entry.pnlUsd > 0
                             ? "text-[#00FFA3]"
                             : entry.pnlUsd < 0
-                            ? "text-rose-400"
-                            : "text-zinc-400"
+                            ? "text-[#F43F5E]"
+                            : "text-[#94A3B8]"
                         }`}
                       >
                         {entry.pnlUsd > 0 ? `+$${entry.pnlUsd.toFixed(2)}` : `$${entry.pnlUsd.toFixed(2)}`}
                       </td>
 
                       {/* 9. Thesis Note */}
-                      <td className="py-3 px-3 text-zinc-400 text-[11px] line-clamp-2 max-w-xs">
+                      <td className="py-3 px-3 text-[#94A3B8] text-[11px] line-clamp-2 max-w-xs">
                         {entry.thesis}
                       </td>
 
@@ -356,7 +356,7 @@ export default function JournalPage() {
                               e.target.value as JournalEntry["status"]
                             )
                           }
-                          className="text-[10px] px-2 py-1 rounded font-mono font-semibold border border-[#1F232F] bg-[#12141C] text-zinc-300 hover:border-zinc-500 cursor-pointer focus:outline-none"
+                          className="text-[10px] px-2 py-1 rounded font-mono font-semibold border border-[#242E44] bg-[#182030] text-[#CBD5E1] hover:border-[#3B82F6] cursor-pointer focus:outline-none"
                         >
                           <option value="OPEN">Mark OPEN</option>
                           <option value="WON">Mark WON</option>
@@ -376,8 +376,8 @@ export default function JournalPage() {
       {/* 2b. "Log Trade" Modal */}
       {isLogModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 select-none animate-in fade-in duration-150">
-          <div className="w-full max-w-lg rounded-xl border border-[#1F232F] bg-[#090A0E] text-white shadow-2xl overflow-hidden flex flex-col">
-            <div className="flex items-center justify-between border-b border-[#1F232F] px-5 py-3.5 bg-[#12141C]">
+          <div className="w-full max-w-lg rounded-xl border border-[#1E2638] bg-[#121722] text-white shadow-2xl overflow-hidden flex flex-col">
+            <div className="flex items-center justify-between border-b border-[#1E2638] px-5 py-3.5 bg-[#0F131C]">
               <div className="flex items-center gap-2">
                 <Plus className="h-4 w-4 text-[#00FFA3]" />
                 <h3 className="font-semibold text-sm">Log Trade to Audit Journal</h3>
@@ -385,7 +385,7 @@ export default function JournalPage() {
               <button
                 type="button"
                 onClick={() => setIsLogModalOpen(false)}
-                className="p-1 text-zinc-400 hover:text-white"
+                className="p-1 text-[#94A3B8] hover:text-white"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -394,25 +394,25 @@ export default function JournalPage() {
             <form onSubmit={handleLogTrade} className="p-5 space-y-3.5 text-xs font-mono">
               {/* Market Name */}
               <div>
-                <label className="text-zinc-400 block mb-1">Market Name:</label>
+                <label className="text-[#94A3B8] block mb-1">Market Name:</label>
                 <input
                   type="text"
                   required
                   placeholder="e.g. US Federal Reserve Rate Cut in November 2026"
                   value={marketName}
                   onChange={(e) => setMarketName(e.target.value)}
-                  className="w-full bg-[#12141C] border border-[#1F232F] rounded p-2 text-white focus:outline-none focus:border-[#00D688]"
+                  className="w-full bg-[#0F131C] border border-[#242E44] rounded p-2 text-white focus:outline-none focus:border-[#00FFA3]"
                 />
               </div>
 
               {/* Venue & Position Type */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-zinc-400 block mb-1">Venue:</label>
+                  <label className="text-[#94A3B8] block mb-1">Venue:</label>
                   <select
                     value={venue}
                     onChange={(e) => setVenue(e.target.value as JournalEntry["venue"])}
-                    className="w-full bg-[#12141C] border border-[#1F232F] rounded p-2 text-white focus:outline-none focus:border-[#00D688]"
+                    className="w-full bg-[#0F131C] border border-[#242E44] rounded p-2 text-white focus:outline-none focus:border-[#00FFA3]"
                   >
                     <option value="Polymarket">Polymarket</option>
                     <option value="Kalshi">Kalshi</option>
@@ -421,11 +421,11 @@ export default function JournalPage() {
                 </div>
 
                 <div>
-                  <label className="text-zinc-400 block mb-1">Position:</label>
+                  <label className="text-[#94A3B8] block mb-1">Position:</label>
                   <select
                     value={position}
                     onChange={(e) => setPosition(e.target.value as JournalEntry["position"])}
-                    className="w-full bg-[#12141C] border border-[#1F232F] rounded p-2 text-white focus:outline-none focus:border-[#00D688]"
+                    className="w-full bg-[#0F131C] border border-[#242E44] rounded p-2 text-white focus:outline-none focus:border-[#00FFA3]"
                   >
                     <option value="YES">YES</option>
                     <option value="NO">NO</option>
@@ -437,19 +437,19 @@ export default function JournalPage() {
               {/* Size USD & Entry Price */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-zinc-400 block mb-1">Size USD:</label>
+                  <label className="text-[#94A3B8] block mb-1">Size USD:</label>
                   <input
                     type="number"
                     min="1"
                     required
                     value={sizeUsd}
                     onChange={(e) => setSizeUsd(Number(e.target.value))}
-                    className="w-full bg-[#12141C] border border-[#1F232F] rounded p-2 text-white focus:outline-none focus:border-[#00D688]"
+                    className="w-full bg-[#0F131C] border border-[#242E44] rounded p-2 text-white focus:outline-none focus:border-[#00FFA3]"
                   />
                 </div>
 
                 <div>
-                  <label className="text-zinc-400 block mb-1">Entry Price ($):</label>
+                  <label className="text-[#94A3B8] block mb-1">Entry Price ($):</label>
                   <input
                     type="number"
                     step="0.001"
@@ -458,35 +458,35 @@ export default function JournalPage() {
                     required
                     value={entryPrice}
                     onChange={(e) => setEntryPrice(Number(e.target.value))}
-                    className="w-full bg-[#12141C] border border-[#1F232F] rounded p-2 text-white focus:outline-none focus:border-[#00D688]"
+                    className="w-full bg-[#0F131C] border border-[#242E44] rounded p-2 text-white focus:outline-none focus:border-[#00FFA3]"
                   />
                 </div>
               </div>
 
               {/* Thesis / Rationale Notes */}
               <div>
-                <label className="text-zinc-400 block mb-1">Thesis / Rationale Notes:</label>
+                <label className="text-[#94A3B8] block mb-1">Thesis / Rationale Notes:</label>
                 <textarea
                   rows={2}
-                  placeholder="e.g. Exploiting divergence between Kalshi CFTC print and Polymarket order book..."
+                  placeholder="e.g. Exploiting divergence between Kalshi and Polymarket order book..."
                   value={thesisNote}
                   onChange={(e) => setThesisNote(e.target.value)}
-                  className="w-full bg-[#12141C] border border-[#1F232F] rounded p-2 text-white focus:outline-none focus:border-[#00D688]"
+                  className="w-full bg-[#0F131C] border border-[#242E44] rounded p-2 text-white focus:outline-none focus:border-[#00FFA3]"
                 />
               </div>
 
               {/* Submit Button */}
-              <div className="flex items-center justify-end gap-2 pt-2 border-t border-[#1F232F]">
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-[#1E2638]">
                 <button
                   type="button"
                   onClick={() => setIsLogModalOpen(false)}
-                  className="px-3.5 py-1.5 rounded bg-[#161922] text-zinc-300 hover:text-white"
+                  className="px-3.5 py-1.5 rounded bg-[#182030] hover:bg-[#202B3E] border border-[#242E44] text-[#CBD5E1] hover:text-white"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-1.5 rounded bg-[#00D688] hover:bg-[#00FFA3] text-black font-bold"
+                  className="px-4 py-1.5 rounded bg-[#00FFA3] hover:bg-[#00D688] text-black font-bold shadow-md shadow-[#00FFA3]/15 active:scale-[0.98]"
                 >
                   Submit Trade
                 </button>

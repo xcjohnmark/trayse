@@ -36,52 +36,173 @@ interface PolymarketGammaEvent {
 }
 
 function mapTagToCategory(tags?: Array<{ label: string; slug: string }>, title?: string): MarketCategory {
-  const text = `${tags?.map((t) => `${t.label} ${t.slug}`).join(" ") || ""} ${title || ""}`.toLowerCase();
+  const tagStr = (tags?.map((t) => `${t.label} ${t.slug}`).join(" ") || "").toLowerCase();
+  const titleStr = (title || "").toLowerCase();
+  const text = `${tagStr} ${titleStr}`;
 
-  if (text.includes("crypto") || text.includes("bitcoin") || text.includes("btc") || text.includes("eth") || text.includes("solana")) {
-    return "Crypto";
-  }
-  if (text.includes("politic") || text.includes("elect") || text.includes("president") || text.includes("senate") || text.includes("house") || text.includes("trump") || text.includes("biden") || text.includes("macron") || text.includes("france")) {
-    return "Politics";
-  }
-  if (text.includes("fed") || text.includes("rate") || text.includes("inflation") || text.includes("gdp") || text.includes("economy") || text.includes("cpi") || text.includes("macro") || text.includes("finance")) {
-    return "Macro";
-  }
-  if (text.includes("tech") || text.includes("ai") || text.includes("nvidia") || text.includes("apple") || text.includes("tesla") || text.includes("meta") || text.includes("google") || text.includes("stock") || text.includes("nasdaq") || text.includes("equity")) {
-    return "Tech & Equities";
-  }
-  if (text.includes("weather") || text.includes("hurricane") || text.includes("temp") || text.includes("climate") || text.includes("rain") || text.includes("storm")) {
+  // 1. Physical & Weather (check tags and keywords first)
+  const isWeatherTag = tags?.some((t) => {
+    const s = t.slug.toLowerCase();
+    return s === "weather" || s === "climate" || s === "natural-disasters" || s === "hurricanes" || s === "earthquakes";
+  });
+  if (
+    isWeatherTag ||
+    /\b(weather|hurricane|hurricanes|temperature|temperatures|climate|earthquake|earthquakes|volcano|tornado|drought|snow|rain|rainfall|storm|wildfire|blizzard)\b/i.test(text) ||
+    text.includes("hottest year") ||
+    text.includes("el niño") ||
+    text.includes("natural disaster")
+  ) {
     return "Physical & Weather";
   }
 
-  return "Politics"; // Default fallback
+  // 2. Crypto
+  if (
+    tags?.some((t) => ["crypto", "bitcoin", "ethereum", "solana", "altcoins"].includes(t.slug.toLowerCase())) ||
+    text.includes("crypto") ||
+    text.includes("bitcoin") ||
+    text.includes("btc") ||
+    text.includes("ethereum") ||
+    text.includes("eth") ||
+    text.includes("solana") ||
+    text.includes("token") ||
+    text.includes("altcoin")
+  ) {
+    return "Crypto";
+  }
+
+  // 3. Sports
+  if (
+    tags?.some((t) => ["sports", "nba", "nfl", "soccer", "champions-league", "premier-league", "tennis", "formula-1", "baseball", "cricket"].includes(t.slug.toLowerCase())) ||
+    text.includes("vs.") ||
+    text.includes("nba") ||
+    text.includes("nfl") ||
+    text.includes("premier league") ||
+    text.includes("champions league") ||
+    text.includes("uefa") ||
+    text.includes("fifa") ||
+    text.includes("fc ") ||
+    text.includes("serie a") ||
+    text.includes("laliga") ||
+    text.includes("bundesliga") ||
+    text.includes("super bowl") ||
+    text.includes("playoffs")
+  ) {
+    return "Sports";
+  }
+
+  // 4. Macro & Finance
+  if (
+    tags?.some((t) => ["economy", "finance", "business", "fed", "macro"].includes(t.slug.toLowerCase())) ||
+    text.includes("fed ") ||
+    text.includes("rate cut") ||
+    text.includes("rate hike") ||
+    text.includes("inflation") ||
+    text.includes("gdp") ||
+    text.includes("economy") ||
+    text.includes("cpi") ||
+    text.includes("interest rate") ||
+    text.includes("recession") ||
+    text.includes("unemployment") ||
+    text.includes("central bank")
+  ) {
+    return "Macro";
+  }
+
+  // 5. Tech & Science
+  if (
+    tags?.some((t) => ["tech", "science", "ai", "spacex", "openai"].includes(t.slug.toLowerCase())) ||
+    text.includes("spacex") ||
+    text.includes("starship") ||
+    text.includes("ai ") ||
+    text.includes("artificial intelligence") ||
+    text.includes("openai") ||
+    text.includes("nvidia") ||
+    text.includes("apple") ||
+    text.includes("tesla") ||
+    text.includes("google") ||
+    text.includes("quantum") ||
+    text.includes("robot") ||
+    text.includes("nasa") ||
+    text.includes("moon landing")
+  ) {
+    return "Tech & Equities";
+  }
+
+  // 6. Politics
+  if (
+    tags?.some((t) => ["politics", "elections", "geopolitics", "world"].includes(t.slug.toLowerCase())) ||
+    text.includes("politic") ||
+    text.includes("elect") ||
+    text.includes("president") ||
+    text.includes("senate") ||
+    text.includes("house of representatives") ||
+    text.includes("trump") ||
+    text.includes("biden") ||
+    text.includes("macron") ||
+    text.includes("prime minister") ||
+    text.includes("congress") ||
+    text.includes("ceasefire") ||
+    text.includes("nato")
+  ) {
+    return "Politics";
+  }
+
+  return "Politics";
 }
 
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const limit = searchParams.get("limit") || "60";
-    const tag = searchParams.get("tag") || "";
+    const categoryParam = searchParams.get("category") || "";
 
-    const url = new URL("https://gamma-api.polymarket.com/events");
-    url.searchParams.set("closed", "false");
-    url.searchParams.set("limit", limit);
-    url.searchParams.set("order", "volume24hr");
-    url.searchParams.set("ascending", "false");
-    if (tag) url.searchParams.set("tag_id", tag);
+    const fetchPromises: Promise<PolymarketGammaEvent[]>[] = [];
 
-    const res = await fetch(url.toString(), {
-      next: { revalidate: 30 },
-      headers: {
-        Accept: "application/json",
-      },
-    });
+    // 1. Fetch top volume / trending events across exchange
+    fetchPromises.push(
+      fetch("https://gamma-api.polymarket.com/events?closed=false&limit=60&order=volume24hr&ascending=false", {
+        cache: "no-store",
+        headers: { Accept: "application/json" },
+      })
+        .then((r) => (r.ok ? r.json() : []))
+        .catch(() => [])
+    );
 
-    if (!res.ok) {
-      throw new Error(`Polymarket Gamma API returned status ${res.status}`);
+    // 2. Fetch specific category tags in parallel to guarantee rich catalogs in all sections
+    const categoryTags = [
+      "weather",
+      "climate",
+      "science",
+      "tech",
+      "crypto",
+      "politics",
+      "economy",
+      "finance",
+      "sports",
+    ];
+
+    for (const tagSlug of categoryTags) {
+      fetchPromises.push(
+        fetch(`https://gamma-api.polymarket.com/events?closed=false&limit=40&tag_slug=${tagSlug}`, {
+          cache: "no-store",
+          headers: { Accept: "application/json" },
+        })
+          .then((r) => (r.ok ? r.json() : []))
+          .catch(() => [])
+      );
     }
 
-    const events: PolymarketGammaEvent[] = await res.json();
+    const eventArrays = await Promise.all(fetchPromises);
+    const rawEvents = eventArrays.flat();
+
+    // Deduplicate by event.id
+    const seenEventIds = new Set<string>();
+    const events: PolymarketGammaEvent[] = [];
+    for (const ev of rawEvents) {
+      if (ev && ev.id && !seenEventIds.has(ev.id)) {
+        seenEventIds.add(ev.id);
+        events.push(ev);
+      }
+    }
 
     const normalizedPairs: NormalizedMarketPair[] = [];
 

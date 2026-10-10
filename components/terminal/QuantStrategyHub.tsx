@@ -35,7 +35,7 @@ const FORMULA_EXPLANATIONS: { [modelId: string]: string } = {
   "quant-model-earnings-vol":
     "Volatility Smile Surface Arbitrage: Fits SVI (Stochastic Volatility Inspired) parametric surfaces across tokenized options ($NVDA-RH). Projects implied binary payoff density vs prediction market odds.",
   "quant-model-whale-flow":
-    "Mempool Order Flow Toxicity (VPIN): Ingested via Yellowstone gRPC 8ms validator tape. Measures cumulative volume-synchronized probability of toxicity and aggressive taker accumulation ahead of macro announcements.",
+    "Mempool Order Flow Toxicity (VPIN): Real-time validator stream analysis. Measures cumulative volume-synchronized probability of toxicity and aggressive taker accumulation ahead of macro announcements.",
 };
 
 export function QuantStrategyHub() {
@@ -69,7 +69,7 @@ export function QuantStrategyHub() {
   return (
     <div className="space-y-3 font-sans select-none">
       {/* Studio Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5 bg-[#0C0D12] border border-[#1F232F] p-3 rounded-lg">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5 bg-[#182030] border border-[#242E44] p-3 rounded-lg">
         <div className="flex items-center gap-2.5">
           <div className="p-2 rounded-lg bg-purple-500/10 border border-purple-500/20 text-purple-400">
             <Brain className="h-4 w-4" />
@@ -82,7 +82,7 @@ export function QuantStrategyHub() {
               </span>
             </h2>
             <p className="text-xs text-zinc-400 font-mono mt-0.5">
-              Proprietary statistical models computing fair-value probability vs live CLOB odds.
+              Proprietary statistical models computing fair-value probability vs live market odds.
             </p>
           </div>
         </div>
@@ -118,7 +118,7 @@ export function QuantStrategyHub() {
           return (
             <div
               key={model.id}
-              className="rounded-xl border border-[#1F232F] bg-[#090A0E] hover:border-[#2D3345] transition-all p-3.5 space-y-3 shadow-lg"
+              className="rounded-xl border border-[#1E2638] bg-[#121722] hover:border-[#242E44] transition-all p-3.5 space-y-3 shadow-lg"
             >
               {/* Card Header */}
               <div className="flex items-start justify-between gap-2">
@@ -152,21 +152,21 @@ export function QuantStrategyHub() {
               </div>
 
               {/* Data Ingestion Source Strip */}
-              <div className="flex items-center gap-1.5 text-[11px] font-mono text-zinc-400 bg-[#12141C] p-2 rounded border border-[#1F232F]">
+              <div className="flex items-center gap-1.5 text-[11px] font-mono text-zinc-400 bg-[#0F131C] p-2 rounded border border-[#1E2638]">
                 <Cpu className="h-3 w-3 text-purple-400 flex-shrink-0" />
                 <span className="truncate">Feed: {model.dataSource}</span>
               </div>
 
               {/* Odds Comparison Visual */}
               <div className="grid grid-cols-2 gap-2 text-xs font-mono">
-                <div className="bg-[#12141C] border border-purple-500/20 p-2 rounded">
+                <div className="bg-[#0F131C] border border-purple-500/30 p-2 rounded">
                   <span className="text-[10px] text-zinc-500 block">MODEL PROBABILITY</span>
                   <span className="text-base font-bold text-purple-300">
                     {(model.modelProbability * 100).toFixed(1)}%
                   </span>
                 </div>
 
-                <div className="bg-[#12141C] border border-[#1F232F] p-2 rounded">
+                <div className="bg-[#0F131C] border border-[#1E2638] p-2 rounded">
                   <span className="text-[10px] text-zinc-500 block">MARKET CONSENSUS</span>
                   <span className="text-base font-bold text-zinc-300">
                     {(model.marketProbability * 100).toFixed(1)}%
@@ -175,7 +175,7 @@ export function QuantStrategyHub() {
               </div>
 
               {/* Backtest & Kelly Stake Metrics Row */}
-              <div className="flex items-center justify-between border-t border-b border-[#1F232F] py-2 text-xs font-mono">
+              <div className="flex items-center justify-between border-t border-b border-[#1E2638] py-2 text-xs font-mono">
                 <div>
                   <span className="text-[10px] text-zinc-500 block">WIN RATE / SHARPE</span>
                   <span className="font-bold text-zinc-200">
@@ -243,7 +243,7 @@ export function QuantStrategyHub() {
 
               {/* Expandable Mathematical Formula Drawer */}
               {isExpanded && (
-                <div className="rounded-lg bg-[#050608] border border-[#1F232F] p-2.5 text-[11px] font-mono text-zinc-400 space-y-1.5 animate-in fade-in duration-150">
+                <div className="rounded-lg bg-[#0B0E14] border border-[#1E2638] p-2.5 text-[11px] font-mono text-zinc-400 space-y-1.5 animate-in fade-in duration-150">
                   <div className="text-zinc-300 font-semibold flex items-center gap-1">
                     <Activity className="h-3 w-3 text-[#00FFA3]" />
                     <span>Mathematical Specification:</span>
@@ -251,7 +251,7 @@ export function QuantStrategyHub() {
                   <p className="leading-relaxed text-zinc-400">
                     {FORMULA_EXPLANATIONS[model.id]}
                   </p>
-                  <div className="text-[10px] text-zinc-500 pt-1 border-t border-[#1F232F]">
+                  <div className="text-[10px] text-zinc-500 pt-1 border-t border-[#1E2638]">
                     Autonomous trigger: Session key fires execution when statistical edge &gt; 3.0%.
                   </div>
                 </div>

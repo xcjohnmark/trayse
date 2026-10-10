@@ -42,12 +42,12 @@ const PERSONAS: PersonaOption[] = [
   },
   {
     id: "QUANT",
-    title: "High-Frequency Quant",
-    tagline: "Yellowstone gRPC & Sub-12ms Routing",
+    title: "Quantitative Trader",
+    tagline: "Algorithmic & Systematic Trading",
     description:
-      "Leverage direct SVM block-builder bundles, dual-CLOB depth ladder visualization, and microsecond order routing.",
+      "Access multi-venue depth ladders, automated order routing, and quantitative execution tools.",
     icon: <Cpu className="w-5 h-5 text-sky-400" />,
-    badge: "Low Latency",
+    badge: "Systematic",
   },
   {
     id: "ANALYST",
@@ -142,14 +142,14 @@ export function OnboardingModal() {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-3 sm:p-5 overflow-y-auto select-none animate-in fade-in duration-200">
-      <div className="w-full max-w-2xl rounded-2xl border border-[#1F232F] bg-[#090A0E] text-white shadow-[0_25px_80px_rgba(0,0,0,0.95)] flex flex-col overflow-hidden relative my-auto">
+      <div className="w-full max-w-2xl rounded-2xl border border-[#1E2638] bg-[#121722] text-white shadow-[0_25px_80px_rgba(0,0,0,0.95)] flex flex-col overflow-hidden relative my-auto">
         {/* Subtle accent highlight beam */}
         <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#00D688] to-transparent" />
 
         {/* TOP BAR: BRANDING, STEPPER, DISMISS */}
-        <div className="flex items-center justify-between border-b border-[#1F232F] px-5 py-3.5 bg-[#0C0E14]">
+        <div className="flex items-center justify-between border-b border-[#1E2638] px-5 py-3.5 bg-[#0F131C]">
           <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-lg bg-[#141722] border border-[#1F232F] flex items-center justify-center">
+            <div className="w-7 h-7 rounded-lg bg-[#182030] border border-[#242E44] flex items-center justify-center">
               <Sparkle className="w-4 h-4 text-[#00D688]" weight="fill" />
             </div>
             <div>
@@ -228,8 +228,8 @@ export function OnboardingModal() {
                       onClick={() => setTraderPersona(p.id)}
                       className={`p-3.5 rounded-xl border cursor-pointer transition-all flex flex-col justify-between text-left group ${
                         isSelected
-                          ? "bg-[#0F131D] border-[#00D688] shadow-[0_0_20px_rgba(0,214,136,0.12)]"
-                          : "bg-[#0D0F16] border-[#1F232F] hover:border-zinc-700 hover:bg-[#121520]"
+                          ? "bg-[#182030] border-[#00D688] shadow-[0_0_20px_rgba(0,214,136,0.12)]"
+                          : "bg-[#182030]/60 border-[#1E2638] hover:border-[#242E44] hover:bg-[#182030]"
                       }`}
                     >
                       <div className="flex items-start justify-between">
@@ -238,7 +238,7 @@ export function OnboardingModal() {
                             className={`p-2 rounded-lg border ${
                               isSelected
                                 ? "bg-[#00D688]/15 border-[#00D688]/30"
-                                : "bg-[#161824] border-[#1F232F]"
+                                : "bg-[#121722] border-[#242E44]"
                             }`}
                           >
                             {p.icon}
@@ -297,8 +297,8 @@ export function OnboardingModal() {
                   }}
                   className={`p-3.5 rounded-xl border cursor-pointer transition-all flex items-center justify-between ${
                     selectedWallet === "phantom"
-                      ? "bg-[#0F131D] border-[#00D688]"
-                      : "bg-[#0D0F16] border-[#1F232F] hover:border-zinc-700"
+                      ? "bg-[#182030] border-[#00D688]"
+                      : "bg-[#182030]/60 border-[#1E2638] hover:border-[#242E44] hover:bg-[#182030]"
                   }`}
                 >
                   <div className="flex items-center gap-3">
@@ -330,8 +330,8 @@ export function OnboardingModal() {
                   }}
                   className={`p-3.5 rounded-xl border cursor-pointer transition-all flex items-center justify-between ${
                     selectedWallet === "backpack"
-                      ? "bg-[#0F131D] border-[#00D688]"
-                      : "bg-[#0D0F16] border-[#1F232F] hover:border-zinc-700"
+                      ? "bg-[#182030] border-[#00D688]"
+                      : "bg-[#182030]/60 border-[#1E2638] hover:border-[#242E44] hover:bg-[#182030]"
                   }`}
                 >
                   <div className="flex items-center gap-3">
@@ -363,8 +363,8 @@ export function OnboardingModal() {
                   }}
                   className={`p-3.5 rounded-xl border cursor-pointer transition-all flex items-center justify-between ${
                     selectedWallet === "solflare"
-                      ? "bg-[#0F131D] border-[#00D688]"
-                      : "bg-[#0D0F16] border-[#1F232F] hover:border-zinc-700"
+                      ? "bg-[#182030] border-[#00D688]"
+                      : "bg-[#182030]/60 border-[#1E2638] hover:border-[#242E44] hover:bg-[#182030]"
                   }`}
                 >
                   <div className="flex items-center gap-3">
@@ -396,8 +396,8 @@ export function OnboardingModal() {
                   }}
                   className={`p-3.5 rounded-xl border cursor-pointer transition-all flex items-center justify-between ${
                     selectedWallet === "demo"
-                      ? "bg-[#0F131D] border-[#00D688]"
-                      : "bg-[#0D0F16] border-[#1F232F] hover:border-zinc-700"
+                      ? "bg-[#182030] border-[#00D688]"
+                      : "bg-[#182030]/60 border-[#1E2638] hover:border-[#242E44] hover:bg-[#182030]"
                   }`}
                 >
                   <div className="flex items-center gap-3">
@@ -423,7 +423,7 @@ export function OnboardingModal() {
               </div>
 
               {/* Status Capsule */}
-              <div className="p-3.5 rounded-xl bg-[#12141C] border border-[#1F232F] flex items-center justify-between text-xs font-mono">
+              <div className="p-3.5 rounded-xl bg-[#0F131C] border border-[#1E2638] flex items-center justify-between text-xs font-mono">
                 <div className="flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-[#00D688] animate-pulse" />
                   <span className="text-zinc-400">Identity Bound:</span>
@@ -432,8 +432,8 @@ export function OnboardingModal() {
                   </span>
                 </div>
                 <div className="flex items-center gap-2 text-zinc-400">
-                  <span>Rail:</span>
-                  <span className="text-sky-400">Yellowstone gRPC 12ms</span>
+                  <span>Network:</span>
+                  <span className="text-sky-400">Mainnet Connected</span>
                 </div>
               </div>
             </div>
@@ -454,7 +454,7 @@ export function OnboardingModal() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-1">
                 {/* Max Single Position */}
-                <div className="p-3.5 rounded-xl bg-[#0D0F16] border border-[#1F232F] space-y-2">
+                <div className="p-3.5 rounded-xl bg-[#182030] border border-[#242E44] space-y-2">
                   <div className="flex items-center justify-between text-xs">
                     <span className="font-sans text-zinc-300">
                       Max Single Position
@@ -472,7 +472,7 @@ export function OnboardingModal() {
                         className={`py-1 text-[11px] font-mono rounded border transition-colors ${
                           maxPosition === amt
                             ? "bg-[#00D688]/20 border-[#00D688] text-[#00D688] font-bold"
-                            : "bg-[#141722] border-[#1F232F] text-zinc-400 hover:text-white"
+                            : "bg-[#0F131C] border-[#242E44] text-zinc-400 hover:text-white"
                         }`}
                       >
                         ${amt}
@@ -482,7 +482,7 @@ export function OnboardingModal() {
                 </div>
 
                 {/* Max Slippage Protection */}
-                <div className="p-3.5 rounded-xl bg-[#0D0F16] border border-[#1F232F] space-y-2">
+                <div className="p-3.5 rounded-xl bg-[#182030] border border-[#242E44] space-y-2">
                   <div className="flex items-center justify-between text-xs">
                     <span className="font-sans text-zinc-300">
                       Slippage Protection
@@ -500,7 +500,7 @@ export function OnboardingModal() {
                         className={`py-1 text-[11px] font-mono rounded border transition-colors ${
                           maxSlippage === slip
                             ? "bg-sky-500/20 border-sky-400 text-sky-300 font-bold"
-                            : "bg-[#141722] border-[#1F232F] text-zinc-400 hover:text-white"
+                            : "bg-[#0F131C] border-[#242E44] text-zinc-400 hover:text-white"
                         }`}
                       >
                         {slip}%
@@ -510,7 +510,7 @@ export function OnboardingModal() {
                 </div>
 
                 {/* Daily Drawdown Breaker */}
-                <div className="p-3.5 rounded-xl bg-[#0D0F16] border border-[#1F232F] space-y-2">
+                <div className="p-3.5 rounded-xl bg-[#182030] border border-[#242E44] space-y-2">
                   <div className="flex items-center justify-between text-xs">
                     <span className="font-sans text-zinc-300">
                       Daily Loss Circuit Breaker
@@ -528,7 +528,7 @@ export function OnboardingModal() {
                         className={`py-1 text-[11px] font-mono rounded border transition-colors ${
                           dailyLoss === loss
                             ? "bg-amber-500/20 border-amber-400 text-amber-300 font-bold"
-                            : "bg-[#141722] border-[#1F232F] text-zinc-400 hover:text-white"
+                            : "bg-[#0F131C] border-[#242E44] text-zinc-400 hover:text-white"
                         }`}
                       >
                         ${loss}
@@ -538,7 +538,7 @@ export function OnboardingModal() {
                 </div>
 
                 {/* Session Duration */}
-                <div className="p-3.5 rounded-xl bg-[#0D0F16] border border-[#1F232F] space-y-2">
+                <div className="p-3.5 rounded-xl bg-[#182030] border border-[#242E44] space-y-2">
                   <div className="flex items-center justify-between text-xs">
                     <span className="font-sans text-zinc-300">
                       Session Expiry
@@ -556,7 +556,7 @@ export function OnboardingModal() {
                         className={`py-1 text-[11px] font-mono rounded border transition-colors ${
                           expiryHours === h
                             ? "bg-purple-500/20 border-purple-400 text-purple-300 font-bold"
-                            : "bg-[#141722] border-[#1F232F] text-zinc-400 hover:text-white"
+                            : "bg-[#0F131C] border-[#242E44] text-zinc-400 hover:text-white"
                         }`}
                       >
                         {h === 168 ? "7 Days" : `${h}h`}
@@ -595,8 +595,8 @@ export function OnboardingModal() {
                   onClick={() => setSelectedEnv("PAPER")}
                   className={`p-4 rounded-xl border cursor-pointer transition-all flex flex-col justify-between ${
                     selectedEnv === "PAPER"
-                      ? "bg-[#0F131D] border-[#00D688] shadow-[0_0_20px_rgba(0,214,136,0.12)]"
-                      : "bg-[#0D0F16] border-[#1F232F] hover:border-zinc-700"
+                      ? "bg-[#182030] border-[#00D688] shadow-[0_0_20px_rgba(0,214,136,0.12)]"
+                      : "bg-[#182030]/60 border-[#1E2638] hover:border-[#242E44] hover:bg-[#182030]"
                   }`}
                 >
                   <div>
@@ -632,8 +632,8 @@ export function OnboardingModal() {
                   onClick={() => setSelectedEnv("LIVE")}
                   className={`p-4 rounded-xl border cursor-pointer transition-all flex flex-col justify-between ${
                     selectedEnv === "LIVE"
-                      ? "bg-[#0F131D] border-[#00D688] shadow-[0_0_20px_rgba(0,214,136,0.12)]"
-                      : "bg-[#0D0F16] border-[#1F232F] hover:border-zinc-700"
+                      ? "bg-[#182030] border-[#00D688] shadow-[0_0_20px_rgba(0,214,136,0.12)]"
+                      : "bg-[#182030]/60 border-[#1E2638] hover:border-[#242E44] hover:bg-[#182030]"
                   }`}
                 >
                   <div>
@@ -663,7 +663,7 @@ export function OnboardingModal() {
                 </div>
               </div>
 
-              <div className="p-3 rounded-xl bg-[#12141C] border border-[#1F232F] flex items-center justify-between text-xs font-sans text-zinc-400">
+              <div className="p-3 rounded-xl bg-[#0F131C] border border-[#1E2638] flex items-center justify-between text-xs font-sans text-zinc-400">
                 <span>You can switch between Paper and Live mode at any time in the top header.</span>
               </div>
             </div>
@@ -683,7 +683,7 @@ export function OnboardingModal() {
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1 text-xs">
-                <div className="p-3 rounded-xl bg-[#0D0F16] border border-[#1F232F] space-y-1">
+                <div className="p-3 rounded-xl bg-[#182030] border border-[#242E44] space-y-1">
                   <div className="flex items-center gap-2 text-white font-semibold font-display">
                     <span className="w-4 h-4 rounded bg-[#00D688]/20 text-[#00D688] flex items-center justify-center font-mono text-[10px]">
                       1
@@ -696,7 +696,7 @@ export function OnboardingModal() {
                   </p>
                 </div>
 
-                <div className="p-3 rounded-xl bg-[#0D0F16] border border-[#1F232F] space-y-1">
+                <div className="p-3 rounded-xl bg-[#182030] border border-[#242E44] space-y-1">
                   <div className="flex items-center gap-2 text-white font-semibold font-display">
                     <span className="w-4 h-4 rounded bg-sky-500/20 text-sky-400 flex items-center justify-center font-mono text-[10px]">
                       2
@@ -709,12 +709,12 @@ export function OnboardingModal() {
                   </p>
                 </div>
 
-                <div className="p-3 rounded-xl bg-[#0D0F16] border border-[#1F232F] space-y-1">
+                <div className="p-3 rounded-xl bg-[#182030] border border-[#242E44] space-y-1">
                   <div className="flex items-center gap-2 text-white font-semibold font-display">
                     <span className="w-4 h-4 rounded bg-amber-500/20 text-amber-400 flex items-center justify-center font-mono text-[10px]">
                       3
                     </span>
-                    <span>Dual CLOB Order Book (Center-Bottom)</span>
+                    <span>Order Book Depth (Center-Bottom)</span>
                   </div>
                   <p className="text-[11px] text-zinc-400 font-sans">
                     Depth ladder with cumulative volume visual bars, mid-market
@@ -722,7 +722,7 @@ export function OnboardingModal() {
                   </p>
                 </div>
 
-                <div className="p-3 rounded-xl bg-[#0D0F16] border border-[#1F232F] space-y-1">
+                <div className="p-3 rounded-xl bg-[#182030] border border-[#242E44] space-y-1">
                   <div className="flex items-center gap-2 text-white font-semibold font-display">
                     <span className="w-4 h-4 rounded bg-purple-500/20 text-purple-400 flex items-center justify-center font-mono text-[10px]">
                       4
@@ -737,28 +737,28 @@ export function OnboardingModal() {
               </div>
 
               {/* Hotkey hint */}
-              <div className="p-3 rounded-xl bg-[#12141C] border border-[#1F232F] flex items-center justify-between text-xs font-mono text-zinc-400">
+              <div className="p-3 rounded-xl bg-[#0F131C] border border-[#1E2638] flex items-center justify-between text-xs font-mono text-zinc-400">
                 <div className="flex items-center gap-2">
                   <Lightbulb className="w-4 h-4 text-amber-400" />
                   <span>Pro Tip: Press</span>
-                  <kbd className="px-1.5 py-0.5 rounded bg-[#1A1D28] border border-[#272B3A] text-zinc-200 text-[10px]">
+                  <kbd className="px-1.5 py-0.5 rounded bg-[#182030] border border-[#242E44] text-zinc-200 text-[10px]">
                     Cmd + K
                   </kbd>
                   <span>anywhere to launch the Command Palette</span>
                 </div>
-                <span className="text-[#00D688]">Yellowstone gRPC Active</span>
+                <span className="text-[#00D688]">Live Feeds Active</span>
               </div>
             </div>
           )}
 
           {/* BOTTOM NAVIGATION ACTIONS */}
-          <div className="flex items-center justify-between border-t border-[#1F232F] pt-4 mt-6">
+          <div className="flex items-center justify-between border-t border-[#1E2638] pt-4 mt-6">
             <div>
               {currentStep > 0 ? (
                 <button
                   type="button"
                   onClick={() => setCurrentStep((s) => s - 1)}
-                  className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-[#141722] border border-[#1F232F] hover:bg-white/5 text-zinc-300 text-xs font-sans transition-colors"
+                  className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-[#182030] border border-[#242E44] hover:bg-[#242E44] text-zinc-300 text-xs font-sans transition-colors"
                 >
                   <ArrowLeft className="w-3.5 h-3.5" />
                   Back

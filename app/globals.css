@@ -75,11 +75,63 @@
 }
 
 :root {
-  --bg: #111113;
+  /* 1. App Canvas Background (Rich Navy Charcoal, NOT pitch black!) */
+  --bg: #0B0E14;
   --dot: rgba(180, 200, 255, 0.055);
   --dot-accent: rgba(80, 105, 255, 0.68);
   --mask-size: min(72vw, 50rem);
   --mask-url: url('/trayse-mask.svg');
+
+  /* 2. Institutional Terminal Palette (Bullpen / Future News / Rumor Trade Standard) */
+  --terminal-canvas: #0B0E14;          /* Root page canvas */
+  --terminal-frame: #0F131C;           /* Header & Sidebar container */
+  --terminal-card: #121722;            /* Primary card / panel surface (+8% luminance) */
+  --terminal-card-hover: #161D2A;      /* Interactive hovered card (+12% luminance) */
+  --terminal-surface-subtle: #182030;  /* Elevated inputs, submarket chips, inner tags */
+  --terminal-surface-active: #1E273A;  /* Selected state */
+
+  /* 3. Crisp Visible Borders & Dividers (NOT muddy invisible gray!) */
+  --terminal-border: #1E2638;          /* Primary structural panel & card border */
+  --terminal-border-light: #2A364E;    /* Elevated element & hover border */
+  --terminal-border-contrast: rgba(255, 255, 255, 0.16); /* High-contrast hairline */
+  --terminal-border-focus: rgba(255, 255, 255, 0.28);    /* Active / focused hairline */
+
+  /* 4. Typography Hierarchy */
+  --text-primary: #FFFFFF;             /* Titles, live odds, numbers */
+  --text-secondary: #94A3B8;           /* Category tags, volume, resolution dates */
+  --text-muted: #64748B;               /* Timestamps, ticks, inactive items */
+
+  /* 5. Semantic Trading Accents */
+  /* YES / Bids / Green */
+  --yes-bg: rgba(0, 214, 136, 0.10);
+  --yes-bg-hover: rgba(0, 214, 136, 0.18);
+  --yes-border: rgba(0, 214, 136, 0.35);
+  --yes-border-hover: rgba(0, 214, 136, 0.60);
+  --yes-text: #00FFA3;
+  --yes-solid: #00D688;
+
+  /* NO / Asks / Rose */
+  --no-bg: rgba(244, 63, 94, 0.10);
+  --no-bg-hover: rgba(244, 63, 94, 0.18);
+  --no-border: rgba(244, 63, 94, 0.35);
+  --no-border-hover: rgba(244, 63, 94, 0.60);
+  --no-text: #FB7185;
+  --no-solid: #F43F5E;
+
+  /* Arbitrage / Radar Alert / Amber */
+  --arb-bg: rgba(245, 158, 11, 0.12);
+  --arb-border: rgba(245, 158, 11, 0.40);
+  --arb-text: #FBBF24;
+  --arb-solid: #FFC53D;
+
+  /* Kalshi Telemetry / Cyan */
+  --cyan-bg: rgba(14, 165, 233, 0.12);
+  --cyan-border: rgba(14, 165, 233, 0.35);
+  --cyan-text: #38BDF8;
+
+  /* Brand Mint */
+  --brand-mint: #00D688;
+  --brand-mint-glow: #00FFA3;
 }
 
 * {

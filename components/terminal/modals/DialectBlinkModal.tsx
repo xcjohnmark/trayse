@@ -2,12 +2,11 @@
 
 import React, { useState } from "react";
 import { useTerminalStore } from "@/lib/store/terminal-store";
-import { INITIAL_MARKET_PAIRS } from "@/lib/mock/market-data";
 import { scanForArbitrage } from "@/lib/market/arbitrage-engine";
 import { X, Share2, Check, Zap, CheckCircle2, ArrowRight } from "lucide-react";
 
 export function DialectBlinkModal() {
-  const { activeModal, closeModal, modalContextPairId } = useTerminalStore();
+  const { activeModal, closeModal, modalContextPairId, marketPairs } = useTerminalStore();
   const [copied, setCopied] = useState(false);
   const [customAmount, setCustomAmount] = useState("250");
   const [txConfirmedMsg, setTxConfirmedMsg] = useState<string | null>(null);
@@ -15,8 +14,10 @@ export function DialectBlinkModal() {
   if (activeModal !== "DIALECT_BLINK") return null;
 
   const pair =
-    INITIAL_MARKET_PAIRS.find((p) => p.id === modalContextPairId) ||
-    INITIAL_MARKET_PAIRS[0];
+    (modalContextPairId ? marketPairs.find((p) => p.id === modalContextPairId) : null) ||
+    marketPairs[0];
+
+  if (!pair) return null;
 
   // Retrieve calculated arbitrage details
   const arbs = scanForArbitrage([pair]);
@@ -43,9 +44,9 @@ export function DialectBlinkModal() {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-3 sm:p-5 select-none animate-in fade-in duration-150">
-      <div className="w-full max-w-xl rounded-xl border border-[#1F232F] bg-[#090A0E] text-white shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
+      <div className="w-full max-w-xl rounded-xl border border-[#1E2638] bg-[#121722] text-white shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
         {/* Modal Header */}
-        <div className="flex items-center justify-between border-b border-[#1F232F] px-5 py-3.5 bg-[#12141C]">
+        <div className="flex items-center justify-between border-b border-[#1E2638] px-5 py-3.5 bg-[#0F131C]">
           <div className="flex items-center gap-2.5">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-500/10 border border-purple-500/30">
               <Share2 className="h-4 w-4 text-purple-400" />
@@ -71,10 +72,10 @@ export function DialectBlinkModal() {
         {/* Content Body */}
         <div className="p-5 space-y-4 text-xs font-mono overflow-y-auto">
           {/* Simulated Twitter/X Container */}
-          <div className="rounded-xl border border-[#1F232F] bg-black p-4 space-y-3">
+          <div className="rounded-xl border border-[#1E2638] bg-[#0A0D14] p-4 space-y-3">
             {/* Tweet Author Row */}
-            <div className="flex items-center gap-2.5 border-b border-[#1F232F] pb-2.5">
-              <div className="h-7 w-7 rounded-full bg-[#12141C] flex items-center justify-center font-bold text-xs text-[#00FFA3] border border-[#00D688]/40">
+            <div className="flex items-center gap-2.5 border-b border-[#1E2638] pb-2.5">
+              <div className="h-7 w-7 rounded-full bg-[#182030] flex items-center justify-center font-bold text-xs text-[#00FFA3] border border-[#00D688]/40">
                 T
               </div>
               <div className="leading-tight">
@@ -89,9 +90,9 @@ export function DialectBlinkModal() {
             </p>
 
             {/* Unfurled Action Card */}
-            <div className="bg-[#12141C] border border-[#1F232F] rounded-xl overflow-hidden space-y-3 shadow-xl">
+            <div className="bg-[#182030] border border-[#242E44] rounded-xl overflow-hidden space-y-3 shadow-xl">
               {/* Action Image Banner */}
-              <div className="h-28 bg-gradient-to-r from-purple-900/60 via-slate-900 to-[#00D688]/30 p-3.5 flex flex-col justify-between border-b border-[#1F232F]">
+              <div className="h-28 bg-gradient-to-r from-purple-900/60 via-slate-900 to-[#00D688]/30 p-3.5 flex flex-col justify-between border-b border-[#242E44]">
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-black/60 text-[#00FFA3] border border-[#00FFA3]/30 font-bold flex items-center gap-1">
                     <Zap className="h-3 w-3" />
@@ -134,7 +135,7 @@ export function DialectBlinkModal() {
                   <button
                     type="button"
                     onClick={() => handleExecuteMockBlink(500)}
-                    className="py-2 rounded-lg bg-[#1A1D28] hover:bg-[#25293A] text-white border border-[#1F232F] font-mono font-semibold text-xs transition-colors"
+                    className="py-2 rounded-lg bg-[#121722] hover:bg-[#1A2234] text-white border border-[#242E44] font-mono font-semibold text-xs transition-colors"
                   >
                     Execute Arb ($500)
                   </button>
@@ -152,13 +153,13 @@ export function DialectBlinkModal() {
                       value={customAmount}
                       onChange={(e) => setCustomAmount(e.target.value)}
                       placeholder="Custom Amount"
-                      className="w-full bg-[#090A0E] border border-[#1F232F] rounded-lg pl-7 pr-3 py-1.5 text-xs text-white font-mono focus:outline-none focus:border-[#00D688]"
+                      className="w-full bg-[#0F131C] border border-[#242E44] rounded-lg pl-7 pr-3 py-1.5 text-xs text-white font-mono focus:outline-none focus:border-[#00D688]"
                     />
                   </div>
                   <button
                     type="button"
                     onClick={() => handleExecuteMockBlink(customAmount)}
-                    className="px-4 py-1.5 rounded-lg bg-[#161922] hover:bg-[#1E2230] border border-[#1F232F] text-zinc-200 hover:text-white font-mono text-xs font-semibold transition-colors"
+                    className="px-4 py-1.5 rounded-lg bg-[#182030] hover:bg-[#242E44] border border-[#242E44] text-zinc-200 hover:text-white font-mono text-xs font-semibold transition-colors"
                   >
                     Submit
                   </button>
@@ -185,12 +186,12 @@ export function DialectBlinkModal() {
                 type="text"
                 readOnly
                 value={blinkUrl}
-                className="flex-1 rounded-lg bg-[#12141C] border border-[#1F232F] px-3 py-2 text-zinc-300 font-mono text-xs select-all outline-none"
+                className="flex-1 rounded-lg bg-[#0F131C] border border-[#242E44] px-3 py-2 text-zinc-300 font-mono text-xs select-all outline-none"
               />
               <button
                 type="button"
                 onClick={handleCopy}
-                className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-[#161922] hover:bg-[#1E2230] border border-[#1F232F] text-white font-mono text-xs transition-colors"
+                className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-[#182030] hover:bg-[#242E44] border border-[#242E44] text-white font-mono text-xs transition-colors"
               >
                 {copied ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Share2 className="h-3.5 w-3.5 text-purple-400" />}
                 <span>{copied ? "Copied" : "Copy Link"}</span>
@@ -200,7 +201,7 @@ export function DialectBlinkModal() {
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between border-t border-[#1F232F] px-5 py-3.5 bg-[#12141C]">
+        <div className="flex items-center justify-between border-t border-[#1E2638] px-5 py-3.5 bg-[#0F131C]">
           <span className="text-zinc-500 text-[10px] font-mono">
             Compliant with Solana Actions Specification v1.4 • Dialect Blinks
           </span>

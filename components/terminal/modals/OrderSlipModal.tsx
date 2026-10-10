@@ -2,7 +2,6 @@
 
 import React, { useState, useMemo } from "react";
 import { useTerminalStore } from "@/lib/store/terminal-store";
-import { INITIAL_MARKET_PAIRS } from "@/lib/mock/market-data";
 import {
   X,
   TrendingUp,
@@ -26,6 +25,7 @@ export function OrderSlipModal() {
     adjustDemoBalance,
     addJournalEntry,
     polymarketConnected,
+    marketPairs,
   } = useTerminalStore();
 
   const [activeTab, setActiveTab] = useState<"ORDER" | "CROSS_VENUE">("ORDER");
@@ -37,8 +37,8 @@ export function OrderSlipModal() {
   // Find target market pair
   const pair = useMemo(() => {
     if (!orderSlipContext) return null;
-    return INITIAL_MARKET_PAIRS.find((p) => p.id === orderSlipContext.pairId) || null;
-  }, [orderSlipContext]);
+    return marketPairs.find((p) => p.id === orderSlipContext.pairId) || null;
+  }, [orderSlipContext, marketPairs]);
 
   if (activeModal !== "ORDER_SLIP" || !orderSlipContext || !pair) return null;
 
@@ -115,17 +115,17 @@ export function OrderSlipModal() {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
       <div
-        className="w-full max-w-lg rounded-xl bg-[#0B0C10] border border-[#1F232F] shadow-2xl overflow-hidden flex flex-col max-h-[92vh]"
+        className="w-full max-w-lg rounded-xl bg-[#121722] border border-[#1E2638] shadow-2xl shadow-black/40 overflow-hidden flex flex-col max-h-[92vh]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-[#1F232F] bg-[#12141C]">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-[#1E2638] bg-[#0F131C]">
           <div className="flex items-center gap-2.5">
             <span
               className={`px-2.5 py-1 rounded text-xs font-bold font-mono tracking-wider ${
                 isYes
-                  ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40"
-                  : "bg-rose-500/20 text-rose-400 border border-rose-500/40"
+                  ? "bg-[#00D688]/20 text-[#00FFA3] border border-[#00D688]/40"
+                  : "bg-[#F43F5E]/20 text-[#F43F5E] border border-[#F43F5E]/40"
               }`}
             >
               BUY {outcome}
@@ -134,8 +134,8 @@ export function OrderSlipModal() {
               <h2 className="text-sm font-semibold text-white truncate">
                 {pair.canonicalTitle}
               </h2>
-              <span className="text-[10px] text-zinc-400 font-mono">
-                Polymarket CLOB • Resolves {pair.expiryDateFormatted}
+              <span className="text-[10px] text-[#94A3B8] font-mono">
+                {pair.id.startsWith("kalshi-") ? "Kalshi" : "Polymarket"} • Resolves {pair.expiryDateFormatted}
               </span>
             </div>
           </div>
@@ -143,21 +143,21 @@ export function OrderSlipModal() {
           <button
             type="button"
             onClick={closeModal}
-            className="p-1 rounded-lg text-zinc-400 hover:text-white hover:bg-white/5 transition-colors"
+            className="p-1 rounded-lg text-[#94A3B8] hover:text-white hover:bg-[#182030] transition-colors"
           >
             <X className="h-4 w-4" />
           </button>
         </div>
 
         {/* Tab Toggle: Order Slip vs Cross-Venue Intel */}
-        <div className="flex border-b border-[#1F232F] bg-[#090A0E] px-4 pt-1.5">
+        <div className="flex border-b border-[#1E2638] bg-[#0F131C] px-4 pt-1.5">
           <button
             type="button"
             onClick={() => setActiveTab("ORDER")}
             className={`px-4 py-2 text-xs font-semibold border-b-2 transition-all ${
               activeTab === "ORDER"
-                ? "border-[#00D688] text-white"
-                : "border-transparent text-zinc-400 hover:text-zinc-200"
+                ? "border-[#00FFA3] text-white"
+                : "border-transparent text-[#94A3B8] hover:text-white"
             }`}
           >
             Order Execution Slip
@@ -167,8 +167,8 @@ export function OrderSlipModal() {
             onClick={() => setActiveTab("CROSS_VENUE")}
             className={`flex items-center gap-1.5 px-4 py-2 text-xs font-semibold border-b-2 transition-all ${
               activeTab === "CROSS_VENUE"
-                ? "border-[#00D688] text-white"
-                : "border-transparent text-zinc-400 hover:text-zinc-200"
+                ? "border-[#00FFA3] text-white"
+                : "border-transparent text-[#94A3B8] hover:text-white"
             }`}
           >
             <span>Kalshi Comparison</span>
@@ -183,21 +183,21 @@ export function OrderSlipModal() {
           {activeTab === "ORDER" ? (
             <div className="space-y-4">
               {/* Current Price Banner */}
-              <div className="flex items-center justify-between p-3.5 rounded-xl bg-[#12141C] border border-[#1F232F]">
+              <div className="flex items-center justify-between p-3.5 rounded-xl bg-[#0F131C] border border-[#1E2638]">
                 <div>
-                  <span className="text-[10px] font-mono text-zinc-400 uppercase">
+                  <span className="text-[10px] font-mono text-[#94A3B8] uppercase">
                     Execution Price:
                   </span>
                   <div className="text-2xl font-bold font-mono text-white flex items-baseline gap-1.5">
                     <span>${sharePrice.toFixed(2)}</span>
-                    <span className="text-xs font-normal text-zinc-400">
+                    <span className="text-xs font-normal text-[#94A3B8]">
                       ({Math.round(sharePrice * 100)}¢ / contract)
                     </span>
                   </div>
                 </div>
 
                 <div className="text-right">
-                  <span className="text-[10px] font-mono text-zinc-400 uppercase">
+                  <span className="text-[10px] font-mono text-[#94A3B8] uppercase">
                     Execution Venue:
                   </span>
                   <div className="text-xs font-bold font-mono text-[#00FFA3] flex items-center gap-1">
@@ -209,7 +209,7 @@ export function OrderSlipModal() {
 
               {/* Amount Presets */}
               <div className="space-y-2">
-                <label className="block text-[11px] font-mono text-zinc-300">
+                <label className="block text-[11px] font-mono text-[#CBD5E1]">
                   Select Order Size (USD):
                 </label>
                 <div className="grid grid-cols-4 gap-2">
@@ -220,8 +220,8 @@ export function OrderSlipModal() {
                       onClick={() => handleAmountPreset(amt)}
                       className={`py-2 rounded-lg text-xs font-mono font-bold transition-all border ${
                         selectedAmount === amt
-                          ? "bg-[#00D688] text-black border-[#00D688] shadow-md shadow-[#00D688]/20"
-                          : "bg-[#12141C] text-zinc-300 border-[#1F232F] hover:bg-white/5"
+                          ? "bg-[#00FFA3] text-black border-[#00FFA3] shadow-md shadow-[#00FFA3]/20"
+                          : "bg-[#182030] text-[#CBD5E1] border-[#242E44] hover:bg-[#202B3E] hover:text-white"
                       }`}
                     >
                       ${amt}
@@ -231,7 +231,7 @@ export function OrderSlipModal() {
 
                 {/* Custom Amount Input */}
                 <div className="relative mt-2">
-                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500 font-mono text-xs">
+                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#94A3B8] font-mono text-xs">
                     $
                   </span>
                   <input
@@ -241,26 +241,26 @@ export function OrderSlipModal() {
                     value={customAmountStr}
                     onChange={handleCustomChange}
                     placeholder="Custom amount..."
-                    className="w-full bg-[#090A0E] border border-[#1F232F] rounded-lg pl-8 pr-3 py-2 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-[#00D688] font-mono"
+                    className="w-full bg-[#0F131C] border border-[#242E44] rounded-lg pl-8 pr-3 py-2 text-sm text-white placeholder-[#64748B] focus:outline-none focus:border-[#38BDF8] font-mono"
                   />
                 </div>
               </div>
 
               {/* Financial Calculation Breakdown */}
-              <div className="rounded-xl bg-[#12141C] border border-[#1F232F] p-3.5 space-y-2 text-xs font-mono">
-                <div className="flex justify-between text-zinc-400">
+              <div className="rounded-xl bg-[#0F131C] border border-[#1E2638] p-3.5 space-y-2 text-xs font-mono">
+                <div className="flex justify-between text-[#94A3B8]">
                   <span>Contracts to Receive:</span>
                   <span className="text-white font-bold">
                     {sharesReceived.toLocaleString()} Shares
                   </span>
                 </div>
-                <div className="flex justify-between text-zinc-400">
+                <div className="flex justify-between text-[#94A3B8]">
                   <span>Max Payout ($1.00/contract):</span>
                   <span className="text-white font-bold">
                     ${maxPayout.toFixed(2)} USD
                   </span>
                 </div>
-                <div className="border-t border-[#1F232F] pt-2 flex justify-between text-zinc-300 font-semibold">
+                <div className="border-t border-[#1E2638] pt-2 flex justify-between text-[#CBD5E1] font-semibold">
                   <span>Potential Net Profit:</span>
                   <span className="text-[#00FFA3]">
                     +${potentialProfit.toFixed(2)} (+{potentialRoiPercent.toFixed(1)}%)
@@ -269,7 +269,7 @@ export function OrderSlipModal() {
               </div>
 
               {/* Execution Mode Notice */}
-              <div className="flex items-center justify-between text-[11px] text-zinc-400 px-1">
+              <div className="flex items-center justify-between text-[11px] text-[#94A3B8] px-1">
                 <span>
                   Mode:{" "}
                   <strong className={isDemoMode ? "text-amber-400" : "text-[#00FFA3]"}>
@@ -288,12 +288,12 @@ export function OrderSlipModal() {
                 type="button"
                 onClick={handleExecuteTrade}
                 disabled={isExecuting || tradeAmount <= 0}
-                className={`w-full py-3 rounded-xl font-bold font-mono text-sm transition-all flex items-center justify-center gap-2 shadow-lg disabled:opacity-50 ${
+                className={`w-full py-3 rounded-xl font-bold font-mono text-sm transition-all flex items-center justify-center gap-2 shadow-lg disabled:opacity-50 active:scale-[0.98] ${
                   isSuccess
                     ? "bg-[#00D688] text-black"
                     : isYes
-                    ? "bg-emerald-500 hover:bg-emerald-400 text-black shadow-emerald-500/20"
-                    : "bg-rose-500 hover:bg-rose-400 text-white shadow-rose-500/20"
+                    ? "bg-[#00FFA3] hover:bg-[#00D688] text-black shadow-[#00FFA3]/20"
+                    : "bg-[#F43F5E] hover:bg-[#E11D48] text-white shadow-[#F43F5E]/20"
                 }`}
               >
                 {isSuccess ? (
@@ -316,29 +316,29 @@ export function OrderSlipModal() {
           ) : (
             /* Cross-Venue Tab */
             <div className="space-y-4 text-xs font-mono">
-              <div className="p-3.5 rounded-xl bg-[#12141C] border border-[#1F232F] space-y-3">
-                <div className="text-zinc-400 text-[11px] flex items-center justify-between">
+              <div className="p-3.5 rounded-xl bg-[#0F131C] border border-[#1E2638] space-y-3">
+                <div className="text-[#94A3B8] text-[11px] flex items-center justify-between">
                   <span>VENUE PRICE COMPARISON</span>
                   <span className="text-[#00FFA3]">{spreadBps} bps spread</span>
                 </div>
 
                 <div className="grid grid-cols-2 gap-3 pt-1">
-                  <div className="p-3 rounded-lg bg-black/60 border border-blue-500/30">
-                    <span className="text-[10px] text-zinc-400 block">Polymarket {outcome}:</span>
+                  <div className="p-3 rounded-lg bg-[#182030] border border-blue-500/30">
+                    <span className="text-[10px] text-[#94A3B8] block">Polymarket {outcome}:</span>
                     <span className="text-lg font-bold text-white">
                       ${sharePrice.toFixed(2)}
                     </span>
                   </div>
 
-                  <div className="p-3 rounded-lg bg-black/60 border border-emerald-500/30">
-                    <span className="text-[10px] text-zinc-400 block">Kalshi {outcome}:</span>
+                  <div className="p-3 rounded-lg bg-[#182030] border border-emerald-500/30">
+                    <span className="text-[10px] text-[#94A3B8] block">Kalshi {outcome}:</span>
                     <span className="text-lg font-bold text-white">
                       ${kalshiSharePrice.toFixed(2)}
                     </span>
                   </div>
                 </div>
 
-                <div className="p-2.5 rounded bg-white/5 border border-white/10 text-[11px] text-zinc-300 leading-relaxed">
+                <div className="p-2.5 rounded-lg bg-[#182030] border border-[#242E44] text-[11px] text-[#CBD5E1] leading-relaxed">
                   {sharePrice < kalshiSharePrice ? (
                     <p>
                       💡 Polymarket offers a cheaper entry by{" "}
@@ -368,7 +368,7 @@ export function OrderSlipModal() {
                   closeModal();
                   setSelectedPairId(pair.id);
                 }}
-                className="w-full py-2.5 rounded-lg bg-white/5 border border-white/10 text-zinc-300 hover:text-white hover:bg-white/10 transition-colors flex items-center justify-center gap-2 text-xs"
+                className="w-full py-2.5 rounded-lg bg-[#182030] hover:bg-[#202B3E] border border-[#242E44] text-[#CBD5E1] hover:text-white transition-colors flex items-center justify-center gap-2 text-xs"
               >
                 <Layers className="h-3.5 w-3.5 text-blue-400" />
                 <span>Open Full Split-Screen Depth Ladder</span>

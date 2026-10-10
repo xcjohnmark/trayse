@@ -9,15 +9,12 @@ import { usePolymarketStream } from "@/lib/hooks/usePolymarketStream";
 import {
   ArrowUpDown,
   Search,
-  Radio,
-  Layers,
-  ShieldCheck,
   Globe2,
   RotateCw,
   Loader2,
 } from "lucide-react";
 
-type SortOption = "VOLUME_DESC" | "SPREAD_DESC" | "EXPIRY_ASC";
+type SortOption = "VOLUME_DESC" | "EXPIRY_ASC";
 
 export default function TerminalMarketStreamPage() {
   const {
@@ -59,15 +56,16 @@ export default function TerminalMarketStreamPage() {
   }, [marketPairs]);
 
   // Mount dedicated off-thread WebSocket stream and 16.6ms conflation worker
-  const { status: liveStatus } = usePolymarketStream(assetIds);
+  usePolymarketStream(assetIds);
 
   const categories: { id: MarketCategory | "All"; label: string }[] = [
     { id: "All", label: "All Categories" },
-    { id: "Macro", label: "Macro" },
-    { id: "Politics", label: "Politics" },
-    { id: "Crypto", label: "Crypto" },
-    { id: "Tech & Equities", label: "Tech & Equities" },
     { id: "Physical & Weather", label: "Weather" },
+    { id: "Crypto", label: "Crypto" },
+    { id: "Politics", label: "Politics" },
+    { id: "Tech & Equities", label: "Tech & Science" },
+    { id: "Macro", label: "Macro & Finance" },
+    { id: "Sports", label: "Sports" },
   ];
 
   // Filtering by Category, Venue & Search
@@ -113,8 +111,6 @@ export default function TerminalMarketStreamPage() {
             : b.polymarket.volume24h;
         return volB - volA;
       });
-    } else if (sortBy === "SPREAD_DESC") {
-      list.sort((a, b) => b.divergenceBps - a.divergenceBps);
     } else if (sortBy === "EXPIRY_ASC") {
       list.sort((a, b) => a.expiryTimestamp - b.expiryTimestamp);
     }
@@ -122,94 +118,56 @@ export default function TerminalMarketStreamPage() {
   }, [filteredPairs, sortBy, activeVenueTab]);
 
   return (
-    <div className="flex flex-col h-full w-full max-w-7xl mx-auto px-4 sm:px-6 py-5 space-y-4">
+    <div className="flex flex-col h-full w-full max-w-7xl mx-auto px-4 sm:px-6 py-4 space-y-3.5">
       {/* 1. TOP VENUE TABS: ALL | POLYMARKET | KALSHI */}
-      <div className="flex items-center justify-between border-b border-[#1A1D27] pb-3">
+      <div className="flex items-center justify-between border-b border-[#1E2638] pb-3">
         <div className="flex items-center gap-2">
           {/* ALL MARKETS TAB */}
           <button
             type="button"
             onClick={() => setActiveVenueTab("ALL")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
+            className={`flex items-center gap-2 h-8 px-3.5 rounded-lg text-xs font-semibold transition-colors duration-150 ${
               activeVenueTab === "ALL"
-                ? "bg-white text-black shadow-md shadow-white/5"
-                : "bg-[#10121A] text-zinc-400 hover:text-white hover:bg-white/5 border border-[#1A1D27]"
+                ? "bg-white text-black shadow-sm font-bold"
+                : "bg-[#121722] text-slate-400 hover:text-white hover:bg-[#182030] border border-[#1E2638] hover:border-[#2E3A54]"
             }`}
           >
-            <Globe2 className="h-4 w-4" />
+            <Globe2 className="size-3.5" />
             <span>All Markets</span>
-            <span
-              className={`px-1.5 py-0.2 rounded text-[10px] font-mono ${
-                activeVenueTab === "ALL"
-                  ? "bg-black/10 text-black font-bold"
-                  : "bg-white/10 text-zinc-400"
-              }`}
-            >
-              {marketPairs.length}
-            </span>
           </button>
 
           {/* POLYMARKET MIRROR TAB */}
           <button
             type="button"
             onClick={() => setActiveVenueTab("POLYMARKET")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
+            className={`flex items-center gap-2 h-8 px-3.5 rounded-lg text-xs font-semibold transition-colors duration-150 ${
               activeVenueTab === "POLYMARKET"
-                ? "bg-emerald-500 text-black font-bold shadow-md shadow-emerald-500/20"
-                : "bg-[#10121A] text-zinc-400 hover:text-white hover:bg-white/5 border border-[#1A1D27]"
+                ? "bg-[#00D688]/15 text-[#00FFA3] border border-[#00D688]/50 font-bold shadow-sm shadow-[#00D688]/10"
+                : "bg-[#121722] text-slate-400 hover:text-white hover:bg-[#182030] border border-[#1E2638] hover:border-[#2E3A54]"
             }`}
           >
-            <div className="h-2 w-2 rounded-full bg-emerald-300" />
+            <div className="size-1.5 rounded-full bg-[#00D688]" />
             <span>Polymarket</span>
-            <span
-              className={`px-1.5 py-0.2 rounded text-[10px] font-mono ${
-                activeVenueTab === "POLYMARKET"
-                  ? "bg-black/20 text-black font-bold"
-                  : "bg-white/10 text-zinc-400"
-              }`}
-            >
-              {marketPairs.length}
-            </span>
           </button>
 
           {/* KALSHI MIRROR TAB */}
           <button
             type="button"
             onClick={() => setActiveVenueTab("KALSHI")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
+            className={`flex items-center gap-2 h-8 px-3.5 rounded-lg text-xs font-semibold transition-colors duration-150 ${
               activeVenueTab === "KALSHI"
-                ? "bg-sky-500 text-black font-bold shadow-md shadow-sky-500/20"
-                : "bg-[#10121A] text-zinc-400 hover:text-white hover:bg-white/5 border border-[#1A1D27]"
+                ? "bg-sky-500/15 text-sky-400 border border-sky-500/50 font-bold shadow-sm shadow-sky-500/10"
+                : "bg-[#121722] text-slate-400 hover:text-white hover:bg-[#182030] border border-[#1E2638] hover:border-[#2E3A54]"
             }`}
           >
-            <ShieldCheck className="h-3.5 w-3.5" />
+            <div className="size-1.5 rounded-full bg-sky-400" />
             <span>Kalshi</span>
-            <span
-              className={`px-1.5 py-0.2 rounded text-[10px] font-mono ${
-                activeVenueTab === "KALSHI"
-                  ? "bg-black/20 text-black font-bold"
-                  : "bg-white/10 text-zinc-400"
-              }`}
-            >
-              {marketPairs.length}
-            </span>
           </button>
-        </div>
-
-        {/* Live Stream Pulse Badge */}
-        <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#12141C] border border-[#1F232F] font-mono text-[10px]">
-          <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-          <span className="text-emerald-300 font-semibold flex items-center gap-1">
-            <Radio className="h-2.5 w-2.5" />
-            {liveStatus === "CONNECTED"
-              ? "LIVE CLOB STREAM (16ms)"
-              : "STREAM ACTIVE (16ms)"}
-          </span>
         </div>
       </div>
 
       {/* 2. CATEGORY PILLS & SORTING BAR */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#1A1D27] pb-3">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#1E2638] pb-3">
         {/* Horizontal Category Navigation */}
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
           {categories.map((cat) => {
@@ -219,10 +177,10 @@ export default function TerminalMarketStreamPage() {
                 key={cat.id}
                 type="button"
                 onClick={() => setActiveCategory(cat.id)}
-                className={`whitespace-nowrap px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                className={`whitespace-nowrap h-7 px-3 rounded-md text-xs font-medium transition-colors duration-150 flex items-center ${
                   isActive
-                    ? "bg-white/20 text-white font-semibold border border-white/20"
-                    : "bg-[#10121A] text-zinc-400 hover:text-white hover:bg-white/5 border border-[#1A1D27]"
+                    ? "bg-[#1E273A] text-white font-semibold border border-white/25 shadow-sm"
+                    : "bg-[#121722] text-slate-400 hover:text-white hover:bg-[#182030] border border-[#1E2638] hover:border-[#2E3A54]"
                 }`}
               >
                 {cat.label}
@@ -232,36 +190,36 @@ export default function TerminalMarketStreamPage() {
         </div>
 
         {/* Right Side: Market Count, Sync Feeds & Sort Dropdown */}
-        <div className="flex items-center justify-between sm:justify-end gap-3 text-xs text-zinc-400">
+        <div className="flex items-center justify-between sm:justify-end gap-2.5 text-xs text-slate-400">
           <button
             type="button"
             onClick={() => loadLiveMarkets(activeVenueTab)}
             disabled={isLoadingMarkets}
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#10121A] hover:bg-[#161924] border border-[#1A1D27] text-zinc-300 transition-colors disabled:opacity-60 text-xs"
+            aria-label="Sync live market feeds from Polymarket and Kalshi"
+            className="flex items-center gap-1.5 h-7 px-2.5 rounded-md bg-[#121722] hover:bg-[#182030] border border-[#1E2638] hover:border-[#2E3A54] text-slate-300 transition-colors duration-150 disabled:opacity-60 text-xs"
             title="Refresh live catalog from Polymarket & Kalshi"
           >
-            <RotateCw className={`h-3 w-3 text-zinc-400 ${isLoadingMarkets ? "animate-spin text-emerald-400" : ""}`} />
+            <RotateCw className={`size-3 text-slate-400 ${isLoadingMarkets ? "animate-spin text-[#00D688]" : ""}`} />
             <span className="hidden sm:inline">{isLoadingMarkets ? "Syncing..." : "Sync Feeds"}</span>
           </button>
 
-          <span className="font-mono text-[11px] text-zinc-500">
-            {sortedPairs.length} {sortedPairs.length === 1 ? "Market" : "Markets"}
+          <span className="font-mono text-[11px] text-slate-400">
+            <strong className="text-white tabular-nums font-semibold">{sortedPairs.length}</strong>{" "}
+            {sortedPairs.length === 1 ? "Market" : "Markets"}
           </span>
 
-          <div className="flex items-center gap-1.5 bg-[#10121A] border border-[#1A1D27] rounded-lg px-2.5 py-1 text-xs">
-            <ArrowUpDown className="h-3 w-3 text-zinc-500" />
+          <div className="flex items-center gap-1.5 h-7 bg-[#121722] border border-[#1E2638] hover:border-[#2E3A54] rounded-md px-2.5 text-xs transition-colors">
+            <ArrowUpDown className="size-3 text-slate-400" />
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as SortOption)}
-              className="bg-transparent text-zinc-300 focus:outline-none cursor-pointer pr-1"
+              aria-label="Sort prediction markets"
+              className="bg-transparent text-slate-200 focus:outline-none cursor-pointer pr-1 text-xs"
             >
-              <option value="VOLUME_DESC" className="bg-[#10121A] text-white">
+              <option value="VOLUME_DESC" className="bg-[#121722] text-white">
                 Highest Volume
               </option>
-              <option value="SPREAD_DESC" className="bg-[#10121A] text-white">
-                Highest Spread Divergence
-              </option>
-              <option value="EXPIRY_ASC" className="bg-[#10121A] text-white">
+              <option value="EXPIRY_ASC" className="bg-[#121722] text-white">
                 Expiring Soonest
               </option>
             </select>
@@ -271,33 +229,33 @@ export default function TerminalMarketStreamPage() {
 
       {/* 3. MAIN MARKET STREAM GRID */}
       {isLoadingMarkets && sortedPairs.length === 0 ? (
-        <div className="space-y-3">
+        <div className="space-y-2">
           {[1, 2, 3, 4].map((i) => (
             <div
               key={i}
-              className="h-28 rounded-xl bg-[#0B0C10] border border-[#1A1D27] p-4 flex items-center justify-between animate-pulse"
+              className="h-24 rounded-xl bg-[#121722] border border-[#1E2638] p-3.5 flex items-center justify-between animate-pulse"
             >
               <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-xl bg-white/5" />
+                <div className="size-9 rounded-lg bg-[#182030] border border-[#242E44]" />
                 <div className="space-y-2">
                   <div className="h-4 w-64 bg-white/10 rounded" />
                   <div className="h-3 w-32 bg-white/5 rounded" />
                 </div>
               </div>
               <div className="flex gap-2">
-                <div className="h-9 w-20 bg-white/5 rounded-lg" />
-                <div className="h-9 w-20 bg-white/5 rounded-lg" />
+                <div className="h-8 w-20 bg-white/5 rounded-lg border border-white/5" />
+                <div className="h-8 w-20 bg-white/5 rounded-lg border border-white/5" />
               </div>
             </div>
           ))}
         </div>
       ) : sortedPairs.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 text-center rounded-2xl bg-[#090A0E] border border-[#1A1D27] p-6 space-y-3">
-          <Search className="h-8 w-8 text-zinc-600" />
-          <h3 className="text-base font-semibold text-white">
+        <div className="flex flex-col items-center justify-center py-16 text-center rounded-xl bg-[#121722] border border-[#1E2638] p-6 space-y-3">
+          <Search className="size-8 text-zinc-500" />
+          <h3 className="text-sm font-semibold text-white text-balance">
             No prediction markets found
           </h3>
-          <p className="text-xs text-zinc-400 max-w-sm">
+          <p className="text-xs text-zinc-400 max-w-sm text-pretty">
             Try adjusting your search query or selecting a different category filter.
           </p>
           <button
@@ -306,18 +264,18 @@ export default function TerminalMarketStreamPage() {
               setActiveCategory("All");
               setSearchQuery("");
             }}
-            className="px-4 py-1.5 rounded-lg bg-white/10 hover:bg-white/15 text-xs text-white transition-colors"
+            className="px-3.5 py-1.5 rounded-lg bg-white/10 hover:bg-white/15 text-xs font-medium text-white border border-white/10 transition-colors duration-150"
           >
             Clear Filters
           </button>
         </div>
       ) : (
-        <div className="space-y-2.5">
+        <div className="space-y-2">
           {sortedPairs.map((pair) => {
             const isStarred = watchlists.includes(pair.id);
 
-            // Kalshi Mirror Desk View
-            if (activeVenueTab === "KALSHI") {
+            // Kalshi Market Card (Kalshi desk or Kalshi pair in All Markets)
+            if (activeVenueTab === "KALSHI" || pair.id.startsWith("kalshi-")) {
               return (
                 <KalshiMarketCard
                   key={pair.id}

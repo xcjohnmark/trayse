@@ -64,7 +64,7 @@ export function ConnectAccountsModal() {
     setTimeout(() => {
       connectKalshi();
       setIsSubmittingKalshi(false);
-      setNotification("Kalshi CFTC API credentials verified!");
+      setNotification("Kalshi API credentials verified!");
       setTimeout(() => setNotification(null), 3000);
     }, 700);
   };
@@ -78,11 +78,11 @@ export function ConnectAccountsModal() {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
       <div
-        className="w-full max-w-xl rounded-xl bg-[#0B0C10] border border-[#1F232F] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
+        className="w-full max-w-xl rounded-xl bg-[#121722] border border-[#1E2638] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-[#1F232F] bg-[#12141C]">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-[#1E2638] bg-[#0F131C]">
           <div className="flex items-center gap-2.5">
             <div className="h-8 w-8 rounded-lg bg-[#00D688]/10 border border-[#00D688]/30 flex items-center justify-center text-[#00FFA3]">
               <KeyRound className="h-4 w-4" />
@@ -106,7 +106,7 @@ export function ConnectAccountsModal() {
         </div>
 
         {/* Tab Selection */}
-        <div className="flex border-b border-[#1F232F] bg-[#090A0E] px-4 pt-2">
+        <div className="flex border-b border-[#1E2638] bg-[#0B0E14] px-4 pt-2">
           <button
             type="button"
             onClick={() => setActiveTab("EXCHANGES")}
@@ -153,7 +153,7 @@ export function ConnectAccountsModal() {
           {activeTab === "EXCHANGES" ? (
             <div className="space-y-5">
               {/* Polymarket Card */}
-              <div className="rounded-xl bg-[#12141C] border border-[#1F232F] p-4 space-y-3">
+              <div className="rounded-xl bg-[#182030] border border-[#242E44] p-4 space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
                     <div className="h-7 w-7 rounded-lg bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400 font-black text-xs">
@@ -162,9 +162,6 @@ export function ConnectAccountsModal() {
                     <div>
                       <div className="text-xs font-bold text-white flex items-center gap-2">
                         <span>Polymarket</span>
-                        <span className="text-[10px] text-zinc-400 font-mono">
-                          (Polygon CLOB)
-                        </span>
                       </div>
                       <span className="text-[10px] text-zinc-400">
                         Global decentralized prediction market
@@ -197,14 +194,14 @@ export function ConnectAccountsModal() {
                   <form onSubmit={handleConnectPolymarket} className="space-y-2.5 pt-1">
                     <div>
                       <label className="block text-[10px] font-mono text-zinc-400 mb-1">
-                        API Key or Polymarket Clob Secret:
+                        API Key or Secret:
                       </label>
                       <input
                         type="password"
                         value={polyApiKey}
                         onChange={(e) => setPolyApiKey(e.target.value)}
                         placeholder="pm_live_key_..."
-                        className="w-full bg-[#090A0E] border border-[#1F232F] rounded-lg px-3 py-1.5 text-xs text-white placeholder-zinc-600 focus:outline-none focus:border-[#00D688] font-mono"
+                        className="w-full bg-[#0F131C] border border-[#242E44] rounded-lg px-3 py-1.5 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-[#00D688] font-mono"
                       />
                     </div>
                     <div>
@@ -216,7 +213,7 @@ export function ConnectAccountsModal() {
                         value={polyProxyWallet}
                         onChange={(e) => setPolyProxyWallet(e.target.value)}
                         placeholder="0x..."
-                        className="w-full bg-[#090A0E] border border-[#1F232F] rounded-lg px-3 py-1.5 text-xs text-white placeholder-zinc-600 focus:outline-none focus:border-[#00D688] font-mono"
+                        className="w-full bg-[#0F131C] border border-[#242E44] rounded-lg px-3 py-1.5 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-[#00D688] font-mono"
                       />
                     </div>
                     <div className="flex items-center justify-between pt-1">
@@ -242,7 +239,7 @@ export function ConnectAccountsModal() {
               </div>
 
               {/* Kalshi Card */}
-              <div className="rounded-xl bg-[#12141C] border border-[#1F232F] p-4 space-y-3">
+              <div className="rounded-xl bg-[#182030] border border-[#242E44] p-4 space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
                     <div className="h-7 w-7 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-black text-xs">
@@ -251,9 +248,6 @@ export function ConnectAccountsModal() {
                     <div>
                       <div className="text-xs font-bold text-white flex items-center gap-2">
                         <span>Kalshi</span>
-                        <span className="text-[10px] text-zinc-400 font-mono">
-                          (CFTC Regulated v2)
-                        </span>
                       </div>
                       <span className="text-[10px] text-zinc-400">
                         US Federally regulated event contract exchange
@@ -292,8 +286,8 @@ export function ConnectAccountsModal() {
                         type="text"
                         value={kalshiKey}
                         onChange={(e) => setKalshiKey(e.target.value)}
-                        placeholder="kx_live_..."
-                        className="w-full bg-[#090A0E] border border-[#1F232F] rounded-lg px-3 py-1.5 text-xs text-white placeholder-zinc-600 focus:outline-none focus:border-[#00D688] font-mono"
+                        placeholder="Enter Kalshi API Key..."
+                        className="w-full bg-[#0F131C] border border-[#242E44] rounded-lg px-3 py-1.5 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-[#00D688] font-mono"
                       />
                     </div>
                     <div>
@@ -305,7 +299,7 @@ export function ConnectAccountsModal() {
                         value={kalshiSecret}
                         onChange={(e) => setKalshiSecret(e.target.value)}
                         placeholder="-----BEGIN RSA PRIVATE KEY-----"
-                        className="w-full bg-[#090A0E] border border-[#1F232F] rounded-lg px-3 py-1.5 text-xs text-white placeholder-zinc-600 focus:outline-none focus:border-[#00D688] font-mono"
+                        className="w-full bg-[#0F131C] border border-[#242E44] rounded-lg px-3 py-1.5 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-[#00D688] font-mono"
                       />
                     </div>
                     <div className="flex items-center justify-between pt-1">
@@ -332,7 +326,7 @@ export function ConnectAccountsModal() {
             </div>
           ) : (
             <div className="space-y-4">
-              <div className="rounded-xl bg-[#12141C] border border-[#1F232F] p-4 space-y-4">
+              <div className="rounded-xl bg-[#182030] border border-[#242E44] p-4 space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
                     <div className="h-9 w-9 rounded-lg bg-[#00D688]/15 border border-[#00D688]/30 flex items-center justify-center text-[#00FFA3]">
@@ -367,7 +361,7 @@ export function ConnectAccountsModal() {
                 </div>
 
                 {/* Balance Display */}
-                <div className="p-3.5 rounded-lg bg-[#090A0E] border border-[#1F232F] flex items-center justify-between">
+                <div className="p-3.5 rounded-lg bg-[#0F131C] border border-[#242E44] flex items-center justify-between">
                   <div>
                     <span className="text-[10px] font-mono text-zinc-400 uppercase">
                       Current Demo Balance:
@@ -379,14 +373,14 @@ export function ConnectAccountsModal() {
                   <button
                     type="button"
                     onClick={handleResetDemoBalance}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-xs font-mono text-zinc-300 hover:text-white hover:bg-white/10 transition-colors"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#182030] border border-[#242E44] text-xs font-mono text-zinc-300 hover:text-white hover:bg-[#242E44] transition-colors"
                   >
                     <RefreshCw className="h-3 w-3" />
                     <span>Reset to $10,000</span>
                   </button>
                 </div>
 
-                <div className="text-[11px] text-zinc-400 leading-relaxed bg-black/40 p-3 rounded-lg border border-white/5 space-y-1">
+                <div className="text-[11px] text-zinc-400 leading-relaxed bg-[#0B0E14] p-3 rounded-lg border border-[#1E2638] space-y-1">
                   <div className="font-semibold text-zinc-300">How Demo Mode Works:</div>
                   <p>
                     • Orders placed in Demo Mode execute against real-time live Polymarket and Kalshi order books.
@@ -400,7 +394,7 @@ export function ConnectAccountsModal() {
           )}
 
           {/* Security Guarantee Note */}
-          <div className="flex items-start gap-2.5 p-3 rounded-lg bg-[#12141C] border border-[#1F232F] text-[11px] text-zinc-400">
+          <div className="flex items-start gap-2.5 p-3 rounded-lg bg-[#182030] border border-[#242E44] text-[11px] text-zinc-400">
             <ShieldCheck className="h-4 w-4 text-[#00FFA3] flex-shrink-0 mt-0.5" />
             <p>
               Your credentials are never stored on any remote cloud server. API signatures and keys are held in local browser memory and can be revoked at any second.
@@ -409,7 +403,7 @@ export function ConnectAccountsModal() {
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between px-5 py-3.5 border-t border-[#1F232F] bg-[#12141C]">
+        <div className="flex items-center justify-between px-5 py-3.5 border-t border-[#1E2638] bg-[#0F131C]">
           <div className="flex items-center gap-2 text-[11px] text-zinc-400 font-mono">
             <span
               className={`h-2 w-2 rounded-full ${

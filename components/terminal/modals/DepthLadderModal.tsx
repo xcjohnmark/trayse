@@ -2,12 +2,11 @@
 
 import React, { useEffect, useMemo } from "react";
 import { useTerminalStore } from "@/lib/store/terminal-store";
-import { INITIAL_MARKET_PAIRS } from "@/lib/mock/market-data";
 import { convertOdds } from "@/lib/market/normalization";
 import { X, ExternalLink, ArrowRight, Zap, TrendingUp } from "lucide-react";
 
 export function DepthLadderModal() {
-  const { selectedPairId, setSelectedPairId, oddsFormat, openModal } = useTerminalStore();
+  const { selectedPairId, setSelectedPairId, oddsFormat, openModal, marketPairs } = useTerminalStore();
 
   // Escape key handler
   useEffect(() => {
@@ -22,8 +21,8 @@ export function DepthLadderModal() {
 
   const pair = useMemo(() => {
     if (!selectedPairId) return null;
-    return INITIAL_MARKET_PAIRS.find((p) => p.id === selectedPairId) || null;
-  }, [selectedPairId]);
+    return marketPairs.find((p) => p.id === selectedPairId) || null;
+  }, [selectedPairId, marketPairs]);
 
   if (!pair) return null;
 
@@ -54,27 +53,27 @@ export function DepthLadderModal() {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-3 sm:p-5 select-none animate-in fade-in duration-150">
-      <div className="w-full max-w-4xl rounded-xl border border-[#1F232F] bg-[#090A0E] text-white shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
+      <div className="w-full max-w-4xl rounded-xl border border-[#1E2638] bg-[#121722] text-white shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
         {/* 1. Modal Header */}
-        <div className="flex items-center justify-between border-b border-[#1F232F] px-5 py-3.5 bg-[#12141C]">
+        <div className="flex items-center justify-between border-b border-[#1E2638] px-5 py-3.5 bg-[#0F131C]">
           <div className="flex items-center gap-3">
-            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/10 text-zinc-300 font-semibold uppercase">
+            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#182030] border border-[#242E44] text-[#CBD5E1] font-semibold uppercase">
               {pair.category}
             </span>
             <div>
               <h3 className="font-semibold text-sm sm:text-base text-white tracking-wide">
                 {pair.canonicalTitle}
               </h3>
-              <p className="text-[11px] font-mono text-zinc-400 mt-0.5 flex items-center gap-2">
+              <p className="text-[11px] font-mono text-[#94A3B8] mt-0.5 flex items-center gap-2">
                 <span>EXPIRY: {pair.expiryDateFormatted}</span>
-                <span className="text-zinc-600">•</span>
+                <span className="text-[#334155]">•</span>
                 <span>
                   CROSS SPREAD:{" "}
                   <span className="text-[#00FFA3] font-semibold">{pair.divergenceBps} BPS</span>
                 </span>
                 {pair.hasArbitrage && (
                   <>
-                    <span className="text-zinc-600">•</span>
+                    <span className="text-[#334155]">•</span>
                     <span className="text-[#00FFA3] font-bold flex items-center gap-0.5">
                       <Zap className="h-3 w-3" />
                       SYNTHETIC ARB ACTIVE
@@ -87,7 +86,7 @@ export function DepthLadderModal() {
           <button
             type="button"
             onClick={() => setSelectedPairId(null)}
-            className="rounded-lg p-1.5 text-zinc-400 hover:text-white hover:bg-white/10 transition-colors"
+            className="rounded-lg p-1.5 text-[#94A3B8] hover:text-white hover:bg-[#182030] transition-colors"
             title="Close Depth Ladder (Esc)"
           >
             <X className="h-5 w-5" />
@@ -95,14 +94,14 @@ export function DepthLadderModal() {
         </div>
 
         {/* 2. Split-Screen Dual Order Ladders */}
-        <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-[#1F232F] p-4 gap-4 overflow-y-auto flex-1">
-          {/* LEFT PANEL: Polymarket CLOB */}
+        <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-[#1E2638] p-4 gap-4 overflow-y-auto flex-1">
+          {/* LEFT PANEL: Polymarket */}
           <div className="space-y-2.5">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span className="h-2.5 w-2.5 rounded-full bg-purple-400" />
-                <span className="text-xs font-mono font-bold text-zinc-200">
-                  POLYMARKET (Polygon CLOB)
+                <span className="text-xs font-mono font-bold text-white">
+                  POLYMARKET
                 </span>
               </div>
               <a
@@ -116,9 +115,9 @@ export function DepthLadderModal() {
               </a>
             </div>
 
-            <div className="rounded border border-[#1F232F] bg-[#000000] p-2 text-xs font-mono">
+            <div className="rounded-lg border border-[#1E2638] bg-[#0F131C] p-2.5 text-xs font-mono">
               {/* Header row */}
-              <div className="grid grid-cols-3 text-[10px] text-zinc-500 pb-1.5 border-b border-[#1F232F]">
+              <div className="grid grid-cols-3 text-[10px] text-[#94A3B8] pb-1.5 border-b border-[#1E2638]">
                 <span>PRICE (ASK / BID)</span>
                 <span className="text-right">SIZE (SHARES)</span>
                 <span className="text-right">CUMULATIVE</span>
@@ -131,19 +130,19 @@ export function DepthLadderModal() {
                   return (
                     <div
                       key={`pm-ask-${idx}`}
-                      className="relative grid grid-cols-3 text-rose-400 text-[11px] py-0.5 px-1 rounded overflow-hidden"
+                      className="relative grid grid-cols-3 text-[#F43F5E] text-[11px] py-0.5 px-1 rounded overflow-hidden hover:bg-[#182030]"
                     >
                       <div
-                        className="absolute right-0 top-0 bottom-0 bg-rose-500/15 pointer-events-none transition-all duration-300"
+                        className="absolute right-0 top-0 bottom-0 bg-[#F43F5E]/15 pointer-events-none transition-all duration-300"
                         style={{ width: `${depthPercent}%` }}
                       />
                       <span className="font-semibold z-10">
                         {convertOdds(ask.price, oddsFormat)}
                       </span>
-                      <span className="text-right text-zinc-300 z-10">
+                      <span className="text-right text-white z-10 font-medium">
                         {ask.size.toLocaleString()}
                       </span>
-                      <span className="text-right text-zinc-500 z-10">
+                      <span className="text-right text-[#94A3B8] z-10">
                         {ask.total.toLocaleString()}
                       </span>
                     </div>
@@ -152,12 +151,12 @@ export function DepthLadderModal() {
               </div>
 
               {/* Mid-Market Spread Indicator */}
-              <div className="py-1.5 px-3 my-1.5 bg-[#12141C] border border-[#1F232F] text-[10px] flex items-center justify-between text-zinc-400 rounded">
-                <span className="text-zinc-500">POLYMARKET MID:</span>
+              <div className="py-1.5 px-3 my-1.5 bg-[#182030] border border-[#242E44] text-[10px] flex items-center justify-between text-[#94A3B8] rounded">
+                <span className="text-[#94A3B8]">POLYMARKET MID:</span>
                 <span className="text-white font-bold">
                   {convertOdds(pair.polymarket.yesPrice, oddsFormat)}
                 </span>
-                <span className="text-zinc-400">SPREAD: {pmSpreadBps} bps</span>
+                <span className="text-[#CBD5E1]">SPREAD: {pmSpreadBps} bps</span>
               </div>
 
               {/* BIDS (Buy Orders) - Descending order */}
@@ -167,19 +166,19 @@ export function DepthLadderModal() {
                   return (
                     <div
                       key={`pm-bid-${idx}`}
-                      className="relative grid grid-cols-3 text-[#00FFA3] text-[11px] py-0.5 px-1 rounded overflow-hidden"
+                      className="relative grid grid-cols-3 text-[#00FFA3] text-[11px] py-0.5 px-1 rounded overflow-hidden hover:bg-[#182030]"
                     >
                       <div
-                        className="absolute right-0 top-0 bottom-0 bg-emerald-500/15 pointer-events-none transition-all duration-300"
+                        className="absolute right-0 top-0 bottom-0 bg-[#00D688]/15 pointer-events-none transition-all duration-300"
                         style={{ width: `${depthPercent}%` }}
                       />
                       <span className="font-semibold z-10">
                         {convertOdds(bid.price, oddsFormat)}
                       </span>
-                      <span className="text-right text-zinc-300 z-10">
+                      <span className="text-right text-white z-10 font-medium">
                         {bid.size.toLocaleString()}
                       </span>
-                      <span className="text-right text-zinc-500 z-10">
+                      <span className="text-right text-[#94A3B8] z-10">
                         {bid.total.toLocaleString()}
                       </span>
                     </div>
@@ -189,13 +188,13 @@ export function DepthLadderModal() {
             </div>
           </div>
 
-          {/* RIGHT PANEL: Kalshi CFTC v2 */}
+          {/* RIGHT PANEL: Kalshi */}
           <div className="space-y-2.5">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span className="h-2.5 w-2.5 rounded-full bg-blue-400" />
-                <span className="text-xs font-mono font-bold text-zinc-200">
-                  KALSHI (CFTC Regulated v2)
+                <span className="text-xs font-mono font-bold text-white">
+                  KALSHI
                 </span>
               </div>
               <a
@@ -209,9 +208,9 @@ export function DepthLadderModal() {
               </a>
             </div>
 
-            <div className="rounded border border-[#1F232F] bg-[#000000] p-2 text-xs font-mono">
+            <div className="rounded-lg border border-[#1E2638] bg-[#0F131C] p-2.5 text-xs font-mono">
               {/* Header row */}
-              <div className="grid grid-cols-3 text-[10px] text-zinc-500 pb-1.5 border-b border-[#1F232F]">
+              <div className="grid grid-cols-3 text-[10px] text-[#94A3B8] pb-1.5 border-b border-[#1E2638]">
                 <span>PRICE (ASK / BID)</span>
                 <span className="text-right">SIZE (CONTRACTS)</span>
                 <span className="text-right">CUMULATIVE</span>
@@ -224,19 +223,19 @@ export function DepthLadderModal() {
                   return (
                     <div
                       key={`k-ask-${idx}`}
-                      className="relative grid grid-cols-3 text-rose-400 text-[11px] py-0.5 px-1 rounded overflow-hidden"
+                      className="relative grid grid-cols-3 text-[#F43F5E] text-[11px] py-0.5 px-1 rounded overflow-hidden hover:bg-[#182030]"
                     >
                       <div
-                        className="absolute right-0 top-0 bottom-0 bg-rose-500/15 pointer-events-none transition-all duration-300"
+                        className="absolute right-0 top-0 bottom-0 bg-[#F43F5E]/15 pointer-events-none transition-all duration-300"
                         style={{ width: `${depthPercent}%` }}
                       />
                       <span className="font-semibold z-10">
                         {convertOdds(ask.price, oddsFormat)}
                       </span>
-                      <span className="text-right text-zinc-300 z-10">
+                      <span className="text-right text-white z-10 font-medium">
                         {ask.size.toLocaleString()}
                       </span>
-                      <span className="text-right text-zinc-500 z-10">
+                      <span className="text-right text-[#94A3B8] z-10">
                         {ask.total.toLocaleString()}
                       </span>
                     </div>
@@ -245,12 +244,12 @@ export function DepthLadderModal() {
               </div>
 
               {/* Mid-Market Spread Indicator */}
-              <div className="py-1.5 px-3 my-1.5 bg-[#12141C] border border-[#1F232F] text-[10px] flex items-center justify-between text-zinc-400 rounded">
-                <span className="text-zinc-500">KALSHI MID:</span>
+              <div className="py-1.5 px-3 my-1.5 bg-[#182030] border border-[#242E44] text-[10px] flex items-center justify-between text-[#94A3B8] rounded">
+                <span className="text-[#94A3B8]">KALSHI MID:</span>
                 <span className="text-white font-bold">
                   {convertOdds(pair.kalshi.yesPrice, oddsFormat)}
                 </span>
-                <span className="text-zinc-400">SPREAD: {kalshiSpreadBps} bps</span>
+                <span className="text-[#CBD5E1]">SPREAD: {kalshiSpreadBps} bps</span>
               </div>
 
               {/* BIDS (Buy Orders) - Descending order */}
@@ -260,19 +259,19 @@ export function DepthLadderModal() {
                   return (
                     <div
                       key={`k-bid-${idx}`}
-                      className="relative grid grid-cols-3 text-[#00FFA3] text-[11px] py-0.5 px-1 rounded overflow-hidden"
+                      className="relative grid grid-cols-3 text-[#00FFA3] text-[11px] py-0.5 px-1 rounded overflow-hidden hover:bg-[#182030]"
                     >
                       <div
-                        className="absolute right-0 top-0 bottom-0 bg-emerald-500/15 pointer-events-none transition-all duration-300"
+                        className="absolute right-0 top-0 bottom-0 bg-[#00D688]/15 pointer-events-none transition-all duration-300"
                         style={{ width: `${depthPercent}%` }}
                       />
                       <span className="font-semibold z-10">
                         {convertOdds(bid.price, oddsFormat)}
                       </span>
-                      <span className="text-right text-zinc-300 z-10">
+                      <span className="text-right text-white z-10 font-medium">
                         {bid.size.toLocaleString()}
                       </span>
-                      <span className="text-right text-zinc-500 z-10">
+                      <span className="text-right text-[#94A3B8] z-10">
                         {bid.total.toLocaleString()}
                       </span>
                     </div>
@@ -284,31 +283,31 @@ export function DepthLadderModal() {
         </div>
 
         {/* 3. Bottom Summary: Top-of-Book Comparison */}
-        <div className="border-t border-[#1F232F] bg-[#0C0D12] p-4 text-xs font-mono space-y-3">
+        <div className="border-t border-[#1E2638] bg-[#0F131C] p-4 text-xs font-mono space-y-3">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             {/* Box 1: Polymarket Top-of-Book */}
-            <div className="p-2.5 rounded border border-[#1F232F] bg-[#12141C]">
-              <span className="text-[10px] text-zinc-500 block">POLYMARKET TOP-OF-BOOK</span>
+            <div className="p-2.5 rounded-lg border border-[#242E44] bg-[#182030]">
+              <span className="text-[10px] text-[#94A3B8] block">POLYMARKET TOP-OF-BOOK</span>
               <div className="flex items-center justify-between mt-1 text-[11px]">
                 <span className="text-[#00FFA3]">Bid: {convertOdds(pmBestBid, oddsFormat)}</span>
-                <span className="text-zinc-500">|</span>
-                <span className="text-rose-400">Ask: {convertOdds(pmBestAsk, oddsFormat)}</span>
+                <span className="text-[#334155]">|</span>
+                <span className="text-[#F43F5E]">Ask: {convertOdds(pmBestAsk, oddsFormat)}</span>
               </div>
             </div>
 
             {/* Box 2: Kalshi Top-of-Book */}
-            <div className="p-2.5 rounded border border-[#1F232F] bg-[#12141C]">
-              <span className="text-[10px] text-zinc-500 block">KALSHI TOP-OF-BOOK</span>
+            <div className="p-2.5 rounded-lg border border-[#242E44] bg-[#182030]">
+              <span className="text-[10px] text-[#94A3B8] block">KALSHI TOP-OF-BOOK</span>
               <div className="flex items-center justify-between mt-1 text-[11px]">
                 <span className="text-[#00FFA3]">Bid: {convertOdds(kalshiBestBid, oddsFormat)}</span>
-                <span className="text-zinc-500">|</span>
-                <span className="text-rose-400">Ask: {convertOdds(kalshiBestAsk, oddsFormat)}</span>
+                <span className="text-[#334155]">|</span>
+                <span className="text-[#F43F5E]">Ask: {convertOdds(kalshiBestAsk, oddsFormat)}</span>
               </div>
             </div>
 
             {/* Box 3: Cross Spread & Arb Route */}
-            <div className="p-2.5 rounded border border-[#1F232F] bg-[#12141C] flex flex-col justify-between">
-              <span className="text-[10px] text-zinc-500 block">NET CROSS-VENUE DIVERGENCE</span>
+            <div className="p-2.5 rounded-lg border border-[#242E44] bg-[#182030] flex flex-col justify-between">
+              <span className="text-[10px] text-[#94A3B8] block">NET CROSS-VENUE DIVERGENCE</span>
               <div className="flex items-center justify-between mt-1 text-[11px]">
                 <span className="text-amber-300 font-bold">{crossSpreadBps} bps</span>
                 {pair.hasArbitrage ? (
@@ -324,18 +323,17 @@ export function DepthLadderModal() {
                     <ArrowRight className="h-3 w-3" />
                   </button>
                 ) : (
-                  <span className="text-zinc-500">No Basis Arb</span>
+                  <span className="text-[#64748B]">No Basis Arb</span>
                 )}
               </div>
             </div>
           </div>
 
-          <div className="flex items-center justify-between pt-1 text-[11px] text-zinc-500">
-            <span>TELEMETRY: Yellowstone gRPC Ingestion & CFTC Order Auditing</span>
+          <div className="flex items-center justify-end pt-1">
             <button
               type="button"
               onClick={() => setSelectedPairId(null)}
-              className="px-3 py-1 rounded bg-[#161922] hover:bg-[#1E2230] border border-[#1F232F] text-zinc-300 hover:text-white transition-colors"
+              className="px-3.5 py-1.5 rounded-lg bg-[#182030] hover:bg-[#202B3E] border border-[#242E44] text-xs text-[#CBD5E1] hover:text-white transition-colors"
             >
               Close Ladder (Esc)
             </button>

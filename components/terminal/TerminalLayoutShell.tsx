@@ -74,14 +74,14 @@ export function TerminalLayoutShell({
   }, [router, closeModal]);
 
   return (
-    <div className="flex h-screen w-full flex-col bg-[#07080B] text-white overflow-hidden select-none">
+    <div className="flex h-screen w-full flex-col bg-[#0B0E14] text-white overflow-hidden select-none">
       {/* 1. TOP HEADER (Brand, Global Search, Accounts Pill, Odds Format) */}
       <TerminalHeader />
 
       {/* 2. BODY WORKSPACE: Collapsible Sidebar + Main Content Stream */}
       <div className="flex flex-1 overflow-hidden relative">
         <TerminalSidebar />
-        <main className="flex-1 overflow-y-auto bg-[#07080B] relative">
+        <main className="flex-1 overflow-y-auto bg-[#0B0E14] relative">
           {children}
         </main>
       </div>

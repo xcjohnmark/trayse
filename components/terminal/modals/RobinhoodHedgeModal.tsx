@@ -2,19 +2,20 @@
 
 import React, { useState } from "react";
 import { useTerminalStore } from "@/lib/store/terminal-store";
-import { INITIAL_MARKET_PAIRS } from "@/lib/mock/market-data";
 import { X, TrendingUp, CheckCircle2, ShieldCheck, Zap } from "lucide-react";
 
 export function RobinhoodHedgeModal() {
-  const { activeModal, closeModal, modalContextPairId } = useTerminalStore();
+  const { activeModal, closeModal, modalContextPairId, marketPairs } = useTerminalStore();
   const [contractsCount, setContractsCount] = useState(1000);
   const [txHash, setTxHash] = useState<string | null>(null);
 
   if (activeModal !== "ROBINHOOD_HEDGE") return null;
 
   const pair =
-    INITIAL_MARKET_PAIRS.find((p) => p.id === modalContextPairId) ||
-    INITIAL_MARKET_PAIRS[1]; // default NVDA pair
+    (modalContextPairId ? marketPairs.find((p) => p.id === modalContextPairId) : null) ||
+    marketPairs[0];
+
+  if (!pair) return null;
 
   const ticker = pair.correlatedEquityTicker || "$NVDA-RH";
   const delta = 0.52; // contract delta
@@ -31,9 +32,9 @@ export function RobinhoodHedgeModal() {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-3 sm:p-5 select-none animate-in fade-in duration-150">
-      <div className="w-full max-w-lg rounded-xl border border-[#1F232F] bg-[#090A0E] text-white shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
+      <div className="w-full max-w-lg rounded-xl border border-[#1E2638] bg-[#121722] text-white shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
         {/* Modal Header */}
-        <div className="flex items-center justify-between border-b border-[#1F232F] px-5 py-3.5 bg-[#12141C]">
+        <div className="flex items-center justify-between border-b border-[#1E2638] px-5 py-3.5 bg-[#0F131C]">
           <div className="flex items-center gap-2.5">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/10 border border-amber-500/30">
               <TrendingUp className="h-4 w-4 text-amber-400" />
@@ -61,7 +62,7 @@ export function RobinhoodHedgeModal() {
         {/* Content Body */}
         <div className="p-5 space-y-4 text-xs font-mono overflow-y-auto">
           {/* Target Event Info */}
-          <div className="p-3.5 rounded-lg bg-[#0C0D12] border border-[#1F232F] space-y-1.5">
+          <div className="p-3.5 rounded-lg bg-[#182030] border border-[#242E44] space-y-1.5">
             <div className="text-[10px] text-zinc-500 uppercase tracking-wider">
               LINKED PREDICTION MARKET UNDERLYING
             </div>
@@ -103,15 +104,15 @@ export function RobinhoodHedgeModal() {
             </div>
 
             {/* Mathematical Formulas Card */}
-            <div className="p-3.5 rounded-lg bg-[#12141C] border border-[#1F232F] space-y-2.5">
-              <div className="flex items-center justify-between text-[11px] pb-2 border-b border-[#1F232F]">
+            <div className="p-3.5 rounded-lg bg-[#182030] border border-[#242E44] space-y-2.5">
+              <div className="flex items-center justify-between text-[11px] pb-2 border-b border-[#242E44]">
                 <span className="text-zinc-400">Delta of Prediction Contract:</span>
                 <span className="text-purple-300 font-bold">Δ = +{delta.toFixed(2)}</span>
               </div>
 
               <div className="space-y-1 text-[11px]">
                 <div className="text-zinc-400">Required Equity Hedge Calculation:</div>
-                <div className="p-2 rounded bg-black/60 border border-white/5 text-[#00FFA3] font-bold">
+                <div className="p-2 rounded bg-[#0F131C] border border-[#242E44] text-[#00FFA3] font-bold">
                   Hedge Ratio = (Contracts × Delta) / 100 = {sharesHedge} Shares of {ticker}
                 </div>
               </div>
@@ -120,13 +121,13 @@ export function RobinhoodHedgeModal() {
                 Action: SHORT {sharesHedge} {ticker} @ ${stockPriceUsd.toFixed(2)} on Robinhood Chain L2
               </div>
 
-              <div className="text-[10px] text-zinc-400 pt-1 border-t border-[#1F232F]">
+              <div className="text-[10px] text-zinc-400 pt-1 border-t border-[#242E44]">
                 Net Basis Profit: Locks in prediction spread while neutralizing stock price movement.
               </div>
             </div>
 
             {/* EIP-7702 Gasless Smart Account Card */}
-            <div className="p-3 rounded-lg bg-black border border-emerald-500/30 space-y-1.5">
+            <div className="p-3 rounded-lg bg-[#0F131C] border border-[#00D688]/30 space-y-1.5">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1.5">
                   <Zap className="h-3.5 w-3.5 text-[#00FFA3]" />
@@ -157,7 +158,7 @@ export function RobinhoodHedgeModal() {
         </div>
 
         {/* Footer Actions */}
-        <div className="flex items-center justify-between border-t border-[#1F232F] px-5 py-3.5 bg-[#12141C]">
+        <div className="flex items-center justify-between border-t border-[#1E2638] px-5 py-3.5 bg-[#0F131C]">
           <span className="text-zinc-500 text-[10px] font-mono">
             Nitro Rollup Finality: ~250ms
           </span>

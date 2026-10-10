@@ -23,11 +23,11 @@ export function QuantStudioModal() {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/85 backdrop-blur-md animate-in fade-in duration-200">
       <div
-        className="w-full max-w-5xl rounded-2xl bg-[#0B0C10] border border-[#1F232F] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
+        className="w-full max-w-5xl rounded-2xl bg-[#121722] border border-[#1E2638] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[#1F232F] bg-[#12141C]">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[#1E2638] bg-[#0F131C]">
           <div className="flex items-center gap-3">
             <div className="h-9 w-9 rounded-xl bg-purple-500/15 border border-purple-500/30 flex items-center justify-center text-purple-300">
               <Brain className="h-5 w-5" />

@@ -38,9 +38,9 @@ export function SessionKeyModal() {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 select-none animate-in fade-in duration-150">
-      <div className="w-full max-w-lg rounded-xl border border-[#1F232F] bg-[#090A0E] text-white shadow-2xl overflow-hidden flex flex-col">
+      <div className="w-full max-w-lg rounded-xl border border-[#1E2638] bg-[#121722] text-white shadow-2xl overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-[#1F232F] px-5 py-3.5 bg-[#12141C]">
+        <div className="flex items-center justify-between border-b border-[#1E2638] px-5 py-3.5 bg-[#0F131C]">
           <div className="flex items-center gap-2.5">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#00D688]/10 border border-[#00D688]/30">
               <Shield className="h-4 w-4 text-[#00FFA3]" />
@@ -74,14 +74,14 @@ export function SessionKeyModal() {
           )}
 
           {/* Explanatory Note */}
-          <div className="p-3 rounded-lg bg-[#12141C] border border-[#1F232F] text-[11px] text-zinc-300 leading-relaxed">
+          <div className="p-3 rounded-lg bg-[#182030] border border-[#242E44] text-[11px] text-zinc-300 leading-relaxed">
             <span className="text-[#00FFA3] font-semibold">Security Model: </span>
             Session key signs on Solana via Swig without exposing your master wallet private key.
             Bot execution automatically revokes if any risk limit is breached.
           </div>
 
           {/* Current Key Status */}
-          <div className="flex items-center justify-between p-2.5 rounded bg-black border border-[#1F232F]">
+          <div className="flex items-center justify-between p-2.5 rounded bg-[#0A0D14] border border-[#1E2638]">
             <div>
               <div className="text-[10px] text-zinc-500">DELEGATED SWIG KEYPAIR</div>
               <div className="text-zinc-200 font-semibold flex items-center gap-1.5 mt-0.5">
@@ -185,7 +185,7 @@ export function SessionKeyModal() {
                     className={`py-2 rounded-lg border text-xs font-mono font-semibold transition-all ${
                       expiryHours === hours
                         ? "bg-[#00D688]/15 border-[#00FFA3] text-[#00FFA3]"
-                        : "bg-[#12141C] border-[#1F232F] text-zinc-400 hover:text-white"
+                        : "bg-[#182030] border-[#242E44] text-zinc-400 hover:text-white"
                     }`}
                   >
                     {label}
@@ -197,7 +197,7 @@ export function SessionKeyModal() {
         </div>
 
         {/* Footer Actions */}
-        <div className="flex items-center justify-between border-t border-[#1F232F] px-5 py-3.5 bg-[#12141C]">
+        <div className="flex items-center justify-between border-t border-[#1E2638] px-5 py-3.5 bg-[#0F131C]">
           {sessionKey.isAuthorized ? (
             <button
               type="button"

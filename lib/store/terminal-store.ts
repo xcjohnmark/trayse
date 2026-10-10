@@ -10,7 +10,6 @@ import {
   SessionKeyConfig,
   WebSocketConnectionStatus,
 } from "../types/terminal";
-import { INITIAL_MARKET_PAIRS } from "../mock/market-data";
 import { calculateSpreadBps, calculateSyntheticArbitrage } from "../market/normalization";
 
 export type ModalType =
@@ -156,7 +155,7 @@ export const useTerminalStore = create<TerminalState>()(
       isSidebarCollapsed: false,
 
       // Live streaming state
-      marketPairs: INITIAL_MARKET_PAIRS,
+      marketPairs: [],
       isLoadingMarkets: false,
       polymarketWsStatus: "DISCONNECTED",
 
@@ -170,7 +169,7 @@ export const useTerminalStore = create<TerminalState>()(
 
       orderSlipContext: null,
 
-      watchlists: ["fed-rate-cut-nov-2026", "nvda-market-cap-3-5t"],
+      watchlists: [],
       journalEntries: INITIAL_JOURNAL_ENTRIES,
 
       sessionKey: DEFAULT_SESSION_KEY,
@@ -360,10 +359,8 @@ export const useTerminalStore = create<TerminalState>()(
           const fetchedPairs = results.flat();
 
           if (fetchedPairs.length > 0) {
-            const existingIds = new Set(fetchedPairs.map((p) => p.id));
-            const preservedInitial = INITIAL_MARKET_PAIRS.filter((p) => !existingIds.has(p.id));
             set({
-              marketPairs: [...fetchedPairs, ...preservedInitial],
+              marketPairs: fetchedPairs,
               isLoadingMarkets: false,
             });
           } else {

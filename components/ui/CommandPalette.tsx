@@ -60,7 +60,7 @@ const SAMPLE_COMMANDS: CommandItem[] = [
     id: "action-scan-arb",
     category: "Actions",
     title: "Execute Cross-Venue Arbitrage Scan",
-    subtitle: "Compute synthetic delta-neutral locks across CLOBs",
+    subtitle: "Compute synthetic delta-neutral locks across venues",
     icon: <ArrowsLeftRight className="w-4 h-4 text-[#00D688]" />,
     badge: "8 Spreads",
   },

@@ -32,18 +32,31 @@ interface KalshiEvent {
 
 function mapKalshiCategory(cat?: string, title?: string): MarketCategory {
   const text = `${cat || ""} ${title || ""}`.toLowerCase();
-  if (text.includes("crypto") || text.includes("bitcoin") || text.includes("btc")) return "Crypto";
-  if (text.includes("election") || text.includes("politic") || text.includes("senate") || text.includes("nato") || text.includes("president")) return "Politics";
-  if (text.includes("fed") || text.includes("rate") || text.includes("economic") || text.includes("financial") || text.includes("gdp") || text.includes("inflation")) return "Macro";
-  if (text.includes("tech") || text.includes("elon") || text.includes("mars") || text.includes("ai") || text.includes("apple")) return "Tech & Equities";
-  if (text.includes("weather") || text.includes("temperature") || text.includes("climate") || text.includes("hurricane")) return "Physical & Weather";
+  if (text.includes("sport") || text.includes("nba") || text.includes("nfl") || text.includes("soccer") || text.includes("baseball") || text.includes("tennis") || text.includes("playoff") || text.includes("nhl") || text.includes("mlb")) {
+    return "Sports";
+  }
+  if (text.includes("climate") || text.includes("weather") || text.includes("temperature") || text.includes("hurricane") || text.includes("earthquake") || text.includes("volcano") || text.includes("supervolcano") || (text.includes("drought") && !text.includes("playoff"))) {
+    return "Physical & Weather";
+  }
+  if (text.includes("crypto") || text.includes("bitcoin") || text.includes("btc") || text.includes("ethereum")) {
+    return "Crypto";
+  }
+  if (text.includes("election") || text.includes("politic") || text.includes("senate") || text.includes("nato") || text.includes("president") || text.includes("pope") || text.includes("dnc")) {
+    return "Politics";
+  }
+  if (text.includes("tech") || text.includes("elon") || text.includes("mars") || text.includes("ai") || text.includes("apple") || text.includes("science")) {
+    return "Tech & Equities";
+  }
+  if (text.includes("fed") || text.includes("rate") || text.includes("economic") || text.includes("financial") || text.includes("gdp") || text.includes("inflation") || text.includes("cpi")) {
+    return "Macro";
+  }
   return "Macro";
 }
 
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const limit = searchParams.get("limit") || "60";
+    const limit = searchParams.get("limit") || "200";
 
     const url = new URL("https://api.elections.kalshi.com/trade-api/v2/events");
     url.searchParams.set("status", "open");
@@ -51,7 +64,7 @@ export async function GET(request: Request) {
     url.searchParams.set("with_nested_markets", "true");
 
     const res = await fetch(url.toString(), {
-      next: { revalidate: 30 },
+      cache: "no-store",
       headers: {
         Accept: "application/json",
       },

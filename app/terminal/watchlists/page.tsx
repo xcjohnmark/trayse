@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useTerminalStore } from "@/lib/store/terminal-store";
-import { INITIAL_MARKET_PAIRS, generateTickUpdate } from "@/lib/mock/market-data";
 import { convertOdds } from "@/lib/market/normalization";
 import { NormalizedMarketPair } from "@/lib/types/terminal";
 import {
@@ -26,32 +25,22 @@ export default function WatchlistsPage() {
     setSelectedPairId,
     openModal,
     oddsFormat,
+    marketPairs,
+    loadLiveMarkets,
   } = useTerminalStore();
 
-  const [pairs, setPairs] = useState<NormalizedMarketPair[]>(INITIAL_MARKET_PAIRS);
-
-  // Live tick updates for watched pairs (every 3.8s)
   useEffect(() => {
-    const interval = setInterval(() => {
-      setPairs((prev) => {
-        const randomIndex = Math.floor(Math.random() * prev.length);
-        const targetPair = prev[randomIndex];
-        const updated = generateTickUpdate(targetPair);
-        const next = [...prev];
-        next[randomIndex] = updated;
-        return next;
-      });
-    }, 3800);
+    if (marketPairs.length === 0) {
+      loadLiveMarkets("ALL");
+    }
+  }, [marketPairs.length, loadLiveMarkets]);
 
-    return () => clearInterval(interval);
-  }, []);
-
-  const starredPairs = pairs.filter((p) => watchlists.includes(p.id));
+  const starredPairs = marketPairs.filter((p) => watchlists.includes(p.id));
 
   return (
     <div className="flex flex-col h-full space-y-4 font-sans select-none overflow-y-auto pr-1">
       {/* Top Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-[#0C0D12] border border-[#1F232F] p-3 rounded-lg">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-[#121722] border border-[#1E2638] p-3.5 rounded-xl shadow-lg shadow-black/20">
         <div className="flex items-center gap-2.5">
           <div className="p-2 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400">
             <Star className="h-4 w-4 fill-amber-400" />
@@ -63,7 +52,7 @@ export default function WatchlistsPage() {
                 {starredPairs.length} PINNED
               </span>
             </h2>
-            <p className="text-xs text-zinc-400 font-mono mt-0.5">
+            <p className="text-xs text-[#94A3B8] font-mono mt-0.5">
               Dedicated high-frequency desk for your starred prediction markets.
             </p>
           </div>
@@ -72,7 +61,7 @@ export default function WatchlistsPage() {
         <div className="flex items-center gap-2 text-xs font-mono">
           <Link
             href="/terminal"
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#161922] hover:bg-[#1E2230] border border-[#1F232F] text-zinc-300 hover:text-white transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#182030] hover:bg-[#202B3E] border border-[#242E44] text-[#CBD5E1] hover:text-white transition-colors"
           >
             <LayoutGrid className="h-3.5 w-3.5" />
             <span>Market Browser</span>
@@ -89,19 +78,19 @@ export default function WatchlistsPage() {
 
       {/* Main Content Area */}
       {starredPairs.length === 0 ? (
-        <div className="rounded-xl border border-[#1F232F] bg-[#090A0E] p-12 text-center flex flex-col items-center justify-center space-y-3">
-          <div className="h-12 w-12 rounded-full bg-[#12141C] border border-[#1F232F] flex items-center justify-center text-zinc-500">
+        <div className="rounded-xl border border-[#1E2638] bg-[#121722] p-12 text-center flex flex-col items-center justify-center space-y-3 shadow-lg shadow-black/20">
+          <div className="h-12 w-12 rounded-full bg-[#182030] border border-[#242E44] flex items-center justify-center text-[#94A3B8]">
             <Star className="h-6 w-6" />
           </div>
           <div className="space-y-1">
-            <h3 className="text-base font-bold text-zinc-200">No Markets in Watchlist</h3>
-            <p className="text-xs text-zinc-500 font-mono max-w-sm">
+            <h3 className="text-base font-bold text-white">No Markets in Watchlist</h3>
+            <p className="text-xs text-[#94A3B8] font-mono max-w-sm">
               Click the star icon (★) next to any event in the Market Browser to pin it to this live desk.
             </p>
           </div>
           <Link
             href="/terminal"
-            className="mt-2 flex items-center gap-2 px-4 py-2 rounded-lg bg-[#00D688] hover:bg-[#00FFA3] text-black text-xs font-mono font-bold transition-all shadow-md shadow-[#00FFA3]/10"
+            className="mt-2 flex items-center gap-2 px-4 py-2 rounded-lg bg-[#00FFA3] hover:bg-[#00D688] text-black text-xs font-mono font-bold transition-all shadow-md shadow-[#00FFA3]/15 active:scale-[0.98]"
           >
             <span>Browse Markets</span>
             <ArrowRight className="h-3.5 w-3.5" />
@@ -115,13 +104,13 @@ export default function WatchlistsPage() {
             return (
               <div
                 key={pair.id}
-                className="rounded-xl border border-[#1F232F] bg-[#090A0E] hover:border-[#2D3345] transition-all p-4 space-y-3 shadow-lg"
+                className="rounded-xl border border-[#1E2638] bg-[#121722] hover:border-[#2E3C57] transition-all p-4 space-y-3 shadow-lg shadow-black/20"
               >
                 {/* Header Row with 1-Click Unstar Action */}
-                <div className="flex items-start justify-between gap-2 pb-2.5 border-b border-[#1F232F]">
+                <div className="flex items-start justify-between gap-2 pb-2.5 border-b border-[#1E2638]">
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-white/10 text-zinc-300 font-semibold uppercase">
+                      <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-[#182030] border border-[#242E44] text-[#CBD5E1] font-semibold uppercase">
                         {pair.category}
                       </span>
                       {pair.hasArbitrage && (
@@ -131,12 +120,12 @@ export default function WatchlistsPage() {
                         </span>
                       )}
                     </div>
-                    <h3 className="font-bold text-sm text-zinc-100 mt-1 line-clamp-1">
+                    <h3 className="font-bold text-sm text-white mt-1 line-clamp-1">
                       {pair.canonicalTitle}
                     </h3>
-                    <p className="text-[10px] font-mono text-zinc-500 mt-0.5 flex items-center gap-2">
+                    <p className="text-[10px] font-mono text-[#94A3B8] mt-0.5 flex items-center gap-2">
                       <span>EXP: {pair.expiryDateFormatted}</span>
-                      <span className="text-zinc-600">•</span>
+                      <span className="text-[#334155]">•</span>
                       <span>
                         CURRENT SPREAD:{" "}
                         <span className="text-amber-300 font-bold">{pair.divergenceBps} BPS</span>
@@ -148,7 +137,7 @@ export default function WatchlistsPage() {
                   <button
                     type="button"
                     onClick={() => toggleWatchlist(pair.id)}
-                    className="p-1.5 rounded bg-[#12141C] border border-[#1F232F] text-amber-400 hover:text-zinc-400 hover:border-zinc-700 transition-colors flex items-center gap-1"
+                    className="p-1.5 rounded-lg bg-[#182030] border border-[#242E44] text-amber-400 hover:text-[#94A3B8] hover:border-[#3B82F6] transition-colors flex items-center gap-1"
                     title="Click to remove from Watchlist"
                   >
                     <Star className="h-4 w-4 fill-amber-400" />
@@ -158,24 +147,23 @@ export default function WatchlistsPage() {
                 {/* Live Odds Grid: Polymarket & Kalshi */}
                 <div className="grid grid-cols-2 gap-2.5 text-xs font-mono">
                   {/* Polymarket Card */}
-                  <div className="bg-[#12141C] border border-purple-500/20 p-2.5 rounded-lg space-y-1.5">
-                    <div className="flex items-center justify-between text-[10px] text-zinc-400">
+                  <div className="bg-[#0F131C] border border-purple-500/20 p-2.5 rounded-lg space-y-1.5">
+                    <div className="flex items-center justify-between text-[10px] text-[#94A3B8]">
                       <span className="flex items-center gap-1 font-bold text-purple-300">
                         <span className="h-1.5 w-1.5 rounded-full bg-purple-400" />
                         POLYMARKET
                       </span>
-                      <span className="text-zinc-500">CLOB</span>
                     </div>
                     <div className="grid grid-cols-2 gap-1 text-center">
-                      <div className="bg-[#090A0E] p-1 rounded">
-                        <span className="text-[9px] text-zinc-500 block">YES</span>
-                        <span className="font-bold text-white">
+                      <div className="bg-[#182030] border border-[#242E44] p-1 rounded">
+                        <span className="text-[9px] text-[#94A3B8] block">YES</span>
+                        <span className="font-bold text-[#00FFA3]">
                           {convertOdds(pair.polymarket.yesPrice, oddsFormat)}
                         </span>
                       </div>
-                      <div className="bg-[#090A0E] p-1 rounded">
-                        <span className="text-[9px] text-zinc-500 block">NO</span>
-                        <span className="text-zinc-400">
+                      <div className="bg-[#182030] border border-[#242E44] p-1 rounded">
+                        <span className="text-[9px] text-[#94A3B8] block">NO</span>
+                        <span className="text-[#F43F5E]">
                           {convertOdds(pair.polymarket.noPrice, oddsFormat)}
                         </span>
                       </div>
@@ -183,24 +171,23 @@ export default function WatchlistsPage() {
                   </div>
 
                   {/* Kalshi Card */}
-                  <div className="bg-[#12141C] border border-blue-500/20 p-2.5 rounded-lg space-y-1.5">
-                    <div className="flex items-center justify-between text-[10px] text-zinc-400">
+                  <div className="bg-[#0F131C] border border-blue-500/20 p-2.5 rounded-lg space-y-1.5">
+                    <div className="flex items-center justify-between text-[10px] text-[#94A3B8]">
                       <span className="flex items-center gap-1 font-bold text-blue-300">
                         <span className="h-1.5 w-1.5 rounded-full bg-blue-400" />
                         KALSHI
                       </span>
-                      <span className="text-zinc-500">CFTC v2</span>
                     </div>
                     <div className="grid grid-cols-2 gap-1 text-center">
-                      <div className="bg-[#090A0E] p-1 rounded">
-                        <span className="text-[9px] text-zinc-500 block">YES</span>
-                        <span className="font-bold text-white">
+                      <div className="bg-[#182030] border border-[#242E44] p-1 rounded">
+                        <span className="text-[9px] text-[#94A3B8] block">YES</span>
+                        <span className="font-bold text-[#00FFA3]">
                           {convertOdds(pair.kalshi.yesPrice, oddsFormat)}
                         </span>
                       </div>
-                      <div className="bg-[#090A0E] p-1 rounded">
-                        <span className="text-[9px] text-zinc-500 block">NO</span>
-                        <span className="text-zinc-400">
+                      <div className="bg-[#182030] border border-[#242E44] p-1 rounded">
+                        <span className="text-[9px] text-[#94A3B8] block">NO</span>
+                        <span className="text-[#F43F5E]">
                           {convertOdds(pair.kalshi.noPrice, oddsFormat)}
                         </span>
                       </div>
@@ -209,8 +196,8 @@ export default function WatchlistsPage() {
                 </div>
 
                 {/* Quick Actions Row: Depth Ladder & Arbitrage Radar */}
-                <div className="flex items-center justify-between pt-1 border-t border-[#1F232F] text-xs font-mono">
-                  <div className="text-[11px] text-zinc-500">
+                <div className="flex items-center justify-between pt-1 border-t border-[#1E2638] text-xs font-mono">
+                  <div className="text-[11px] text-[#94A3B8]">
                     24h Vol: ${(aggregateVol / 1000).toFixed(0)}k
                   </div>
 
@@ -219,10 +206,10 @@ export default function WatchlistsPage() {
                     <button
                       type="button"
                       onClick={() => setSelectedPairId(pair.id)}
-                      className="flex items-center gap-1 px-2.5 py-1 rounded bg-[#161922] hover:bg-[#1E2230] border border-[#1F232F] text-zinc-300 hover:text-white text-[11px] transition-colors"
+                      className="flex items-center gap-1 px-2.5 py-1 rounded bg-[#182030] hover:bg-[#202B3E] border border-[#242E44] text-[#CBD5E1] hover:text-white text-[11px] transition-colors"
                       title="Open Side-by-Side Depth Ladder"
                     >
-                      <Layers className="h-3 w-3 text-purple-400" />
+                      <Layers className="h-3 w-3 text-[#A78BFA]" />
                       <span>Depth Ladder</span>
                     </button>
 
