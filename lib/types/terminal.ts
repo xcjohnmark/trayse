@@ -35,12 +35,23 @@ export interface ConflatedMarketTick {
 
 // 3. Normalized Market Category Taxonomy
 export type MarketCategory =
+  | 'Trending'
+  | 'Politics'
+  | 'Sports'
+  | 'Crypto'
+  | 'Esports'
+  | 'Iran'
+  | 'Finance'
+  | 'Geopolitics'
+  | 'Tech'
+  | 'Culture'
+  | 'Economy'
+  | 'Weather'
+  | 'Elections'
+  | 'Mentions'
   | 'Macro'
   | 'Tech & Equities'
-  | 'Physical & Weather'
-  | 'Politics'
-  | 'Crypto'
-  | 'Sports';
+  | 'Physical & Weather';
 
 // 4. Single Order Book Depth Level
 export interface OrderBookLevel {
@@ -84,6 +95,10 @@ export interface VenueMarket {
   image?: string;
   icon?: string;
   submarkets?: SubMarketOutcome[];
+  oneDayPriceChange?: number; // 24h price delta (-1.000 to +1.000)
+  activityScore?: number;     // Normalized quantitative heat index (0-100)
+  totalVolumeUsd?: number;    // Cumulative event volume (USD)
+  spreadCents?: number;       // Bid-ask spread in cents (e.g. 0.01 = 1.0¢)
 }
 
 // 7. Canonical Normalized Cross-Venue Market Pair
@@ -93,6 +108,8 @@ export interface NormalizedMarketPair {
   category: MarketCategory;
   expiryTimestamp: number;
   expiryDateFormatted: string;
+  timeToResolution?: string;   // Precise countdown (e.g. '3h 21m' or '2d 14h')
+  isUrgentResolution?: boolean;// True if resolves in < 24h
   image?: string;
   icon?: string;
   submarkets?: SubMarketOutcome[];
@@ -101,6 +118,13 @@ export interface NormalizedMarketPair {
   divergenceBps: number;
   hasArbitrage: boolean;
   correlatedEquityTicker?: string; // e.g., "$NVDA-RH", "$SPY-RH"
+  isTrending?: boolean;
+  trendingRank?: number;       // 1-based rank on official venue trending (1..50)
+  activityScore?: number;      // Quantitative activity/momentum composite score (0..100)
+  compositeTrendingScore?: number; // Balanced multi-factor ranking score (0..100)
+  oneDayPriceChange?: number;  // Primary 24h price shift
+  totalVolumeUsd?: number;     // Cumulative event volume
+  spreadCents?: number;        // Bid-ask spread in cents
 }
 
 // 8. Actionable Cross-Venue Synthetic Arbitrage Opportunity

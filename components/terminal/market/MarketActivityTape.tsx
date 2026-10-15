@@ -32,13 +32,14 @@ export function MarketActivityTape({
 }: MarketActivityTapeProps) {
   const [filter, setFilter] = useState<"ALL" | "WHALES" | "MY_FILLS">("ALL");
 
-  // Deterministic trade tape seed aligned with current prices
+  // Deterministic trade tape seed aligned with current prices (pure render compliant)
   const trades = useMemo<TradeItem[]>(() => {
+    const baseTimestamp = 1728630000000;
     const raw: TradeItem[] = [
       {
         id: "t-1",
         timeAgo: "1m ago",
-        timestamp: Date.now() - 60000,
+        timestamp: baseTimestamp - 60000,
         side: "BUY",
         outcome: "YES",
         price: currentYesPrice,
@@ -50,7 +51,7 @@ export function MarketActivityTape({
       {
         id: "t-2",
         timeAgo: "4m ago",
-        timestamp: Date.now() - 240000,
+        timestamp: baseTimestamp - 240000,
         side: "BUY",
         outcome: "YES",
         price: Math.max(0.01, currentYesPrice - 0.005),
@@ -62,7 +63,7 @@ export function MarketActivityTape({
       {
         id: "t-3",
         timeAgo: "9m ago",
-        timestamp: Date.now() - 540000,
+        timestamp: baseTimestamp - 540000,
         side: "SELL",
         outcome: "YES",
         price: currentYesPrice,
@@ -73,7 +74,7 @@ export function MarketActivityTape({
       {
         id: "t-4",
         timeAgo: "14m ago",
-        timestamp: Date.now() - 840000,
+        timestamp: baseTimestamp - 840000,
         side: "BUY",
         outcome: "NO",
         price: currentNoPrice,
@@ -85,7 +86,7 @@ export function MarketActivityTape({
       {
         id: "t-5",
         timeAgo: "22m ago",
-        timestamp: Date.now() - 1320000,
+        timestamp: baseTimestamp - 1320000,
         side: "BUY",
         outcome: "YES",
         price: Math.max(0.01, currentYesPrice - 0.01),
@@ -97,7 +98,7 @@ export function MarketActivityTape({
       {
         id: "t-6",
         timeAgo: "35m ago",
-        timestamp: Date.now() - 2100000,
+        timestamp: baseTimestamp - 2100000,
         side: "SELL",
         outcome: "NO",
         price: currentNoPrice,
@@ -108,7 +109,7 @@ export function MarketActivityTape({
       {
         id: "t-7",
         timeAgo: "48m ago",
-        timestamp: Date.now() - 2880000,
+        timestamp: baseTimestamp - 2880000,
         side: "BUY",
         outcome: "YES",
         price: Math.max(0.01, currentYesPrice - 0.015),

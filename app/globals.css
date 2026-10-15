@@ -321,3 +321,50 @@ body {
 .animate-pulse-subtle {
   animation: pulse-subtle 2s ease-in-out infinite;
 }
+
+/* High-Craft Custom Range Slider (Ran Segall $100k Agency Standard) */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: #1e222d;
+  height: 6px;
+  border-radius: 9999px;
+  outline: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #00FFA3;
+  border: 2px solid #000000;
+  box-shadow: 0 0 10px rgba(0, 255, 163, 0.6);
+  cursor: grab;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+input[type="range"]:active::-webkit-slider-thumb {
+  cursor: grabbing;
+  transform: scale(1.25);
+  box-shadow: 0 0 18px rgba(0, 255, 163, 0.95);
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #00FFA3;
+  border: 2px solid #000000;
+  box-shadow: 0 0 10px rgba(0, 255, 163, 0.6);
+  cursor: grab;
+}
+
+/* Code Syntax Highlighting Tokens */
+.syn-kw { color: #c084fc; font-weight: 600; }      /* Keywords (purple) */
+.syn-fn { color: #38bdf8; }                        /* Functions (cyan) */
+.syn-str { color: #00FFA3; }                       /* Strings (mint) */
+.syn-num { color: #f59e0b; }                       /* Numbers (amber) */
+.syn-cm { color: #64748b; font-style: italic; }    /* Comments (slate) */
+.syn-prop { color: #e2e8f0; }                      /* Properties */

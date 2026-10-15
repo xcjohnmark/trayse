@@ -59,13 +59,20 @@ export default function TerminalMarketStreamPage() {
   usePolymarketStream(assetIds);
 
   const categories: { id: MarketCategory | "All"; label: string }[] = [
-    { id: "All", label: "All Categories" },
-    { id: "Physical & Weather", label: "Weather" },
-    { id: "Crypto", label: "Crypto" },
+    { id: "Trending", label: "Trending" },
     { id: "Politics", label: "Politics" },
-    { id: "Tech & Equities", label: "Tech & Science" },
-    { id: "Macro", label: "Macro & Finance" },
     { id: "Sports", label: "Sports" },
+    { id: "Crypto", label: "Crypto" },
+    { id: "Esports", label: "Esports" },
+    { id: "Iran", label: "Iran" },
+    { id: "Finance", label: "Finance" },
+    { id: "Geopolitics", label: "Geopolitics" },
+    { id: "Tech", label: "Tech" },
+    { id: "Culture", label: "Culture" },
+    { id: "Economy", label: "Economy" },
+    { id: "Weather", label: "Weather" },
+    { id: "Elections", label: "Elections" },
+    { id: "Mentions", label: "Mentions" },
   ];
 
   // Filtering by Category, Venue & Search
@@ -78,10 +85,14 @@ export default function TerminalMarketStreamPage() {
         if (p.id.startsWith("pm-")) return false;
       }
 
-      // Category filter
-      if (activeCategory !== "All" && p.category !== activeCategory) {
+      // Category filter:
+      if (activeCategory === "Trending") {
+        // Trending requires isTrending flag or top-ranked event
+        if (!p.isTrending) return false;
+      } else if (activeCategory !== "All" && p.category !== activeCategory) {
         return false;
       }
+
       // Search query filter
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase();
@@ -99,6 +110,20 @@ export default function TerminalMarketStreamPage() {
   // Sorting
   const sortedPairs = useMemo(() => {
     const list = [...filteredPairs];
+
+    // On Trending category, preserve official venue trending rank (1..50)
+    if (activeCategory === "Trending") {
+      list.sort((a, b) => {
+        if (a.trendingRank !== undefined && b.trendingRank !== undefined) {
+          return a.trendingRank - b.trendingRank;
+        }
+        if (a.trendingRank !== undefined) return -1;
+        if (b.trendingRank !== undefined) return 1;
+        return (b.polymarket.volume24h ?? 0) - (a.polymarket.volume24h ?? 0);
+      });
+      return list.slice(0, 50); // strictly top 50
+    }
+
     if (sortBy === "VOLUME_DESC") {
       list.sort((a, b) => {
         const volA =
@@ -115,7 +140,7 @@ export default function TerminalMarketStreamPage() {
       list.sort((a, b) => a.expiryTimestamp - b.expiryTimestamp);
     }
     return list;
-  }, [filteredPairs, sortBy, activeVenueTab]);
+  }, [filteredPairs, sortBy, activeVenueTab, activeCategory]);
 
   return (
     <div className="flex flex-col h-full w-full max-w-7xl mx-auto px-4 sm:px-6 py-4 space-y-3.5">
@@ -261,7 +286,7 @@ export default function TerminalMarketStreamPage() {
           <button
             type="button"
             onClick={() => {
-              setActiveCategory("All");
+              setActiveCategory("Trending");
               setSearchQuery("");
             }}
             className="px-3.5 py-1.5 rounded-lg bg-white/10 hover:bg-white/15 text-xs font-medium text-white border border-white/10 transition-colors duration-150"
@@ -270,7 +295,21 @@ export default function TerminalMarketStreamPage() {
           </button>
         </div>
       ) : (
-        <div className="space-y-2">
+        <div className="space-y-1.5">
+          {/* Institutional Future.news / Bullpen Table Header (Desktop XL+) */}
+          <div className="hidden xl:flex items-center justify-between px-3.5 py-2 text-[10px] font-mono uppercase tracking-wider text-slate-400 border-b border-[#1E2638] bg-[#0E131E]/60 rounded-t-lg">
+            <div className="flex-1 min-w-0 pl-1">Events / Resolution</div>
+            <div className="flex items-center gap-5 text-right shrink-0">
+              <div className="min-w-[68px]">Probability</div>
+              <div className="min-w-[62px]">24h Chg</div>
+              <div className="min-w-[50px]">Spread</div>
+              <div className="min-w-[65px]">24h Vol</div>
+              <div className="min-w-[65px]">Total Vol</div>
+              <div className="min-w-[60px]">Liq</div>
+              <div className="min-w-[130px] pr-2 text-center">Actions</div>
+            </div>
+          </div>
+
           {sortedPairs.map((pair) => {
             const isStarred = watchlists.includes(pair.id);
 

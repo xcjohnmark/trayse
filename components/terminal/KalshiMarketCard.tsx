@@ -38,6 +38,8 @@ export const KalshiMarketCard = memo(function KalshiMarketCard({
 }: KalshiMarketCardProps) {
   const renderCategoryIcon = (category: MarketCategory) => {
     switch (category) {
+      case "Trending":
+        return <TrendingUp className="h-4 w-4 text-sky-400" />;
       case "Macro":
         return <Landmark className="h-4 w-4 text-sky-400" />;
       case "Physical & Weather":

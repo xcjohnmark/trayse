@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useRef, useState, useEffect } from "react";
+import Link from "next/link";
 
 interface Fluid3DTiltNavProps {
   activeTab: string;
@@ -217,8 +218,41 @@ export default function Fluid3DTiltNav({
     springs.current.glareRadius.target = 180;
   };
 
+  // Listen to scroll position and update activeTab dynamically based on visible section
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollY = window.scrollY;
+      const exploreEl = document.getElementById("explore");
+      const resourcesEl = document.getElementById("resources");
+      const faqEl = document.getElementById("faq");
+
+      if (faqEl && scrollY >= faqEl.offsetTop - 250) {
+        setActiveTab("faq");
+      } else if (resourcesEl && scrollY >= resourcesEl.offsetTop - 250) {
+        setActiveTab("resources");
+      } else if (exploreEl && scrollY >= exploreEl.offsetTop - 250) {
+        setActiveTab("explore");
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [setActiveTab]);
+
+  const scrollToSection = (id: string, tabName: string) => {
+    setActiveTab(tabName);
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   return (
-    <header className="pt-6 md:pt-8 px-4 flex justify-center w-full [perspective:1000px]">
+    <header className="sticky top-4 z-50 px-4 flex justify-center w-full [perspective:1000px] pointer-events-auto">
       <nav
         ref={navRef}
         onPointerMove={handlePointerMove}
@@ -270,10 +304,8 @@ export default function Fluid3DTiltNav({
         */}
         {/* Brand Emblem */}
         <button
-          onClick={() => {
-            window.location.href = "/";
-          }}
-          aria-label="Trayse Home"
+          onClick={scrollToTop}
+          aria-label="Trayse Home - Scroll to top"
           className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#23252c] flex items-center justify-center border border-white/15 hover:border-white/35 transition-all shadow-inner group relative z-10 shrink-0"
           style={{ transform: "translateZ(14px)" }}
         >
@@ -305,30 +337,30 @@ export default function Fluid3DTiltNav({
           style={{ transform: "translateZ(9px)" }}
         >
           <button
-            onClick={() => setActiveTab("explore")}
+            onClick={() => scrollToSection("explore", "explore")}
             className={`transition-colors ${
               activeTab === "explore"
-                ? "text-white"
+                ? "text-white font-semibold"
                 : "text-zinc-400 hover:text-white"
             }`}
           >
             Explore
           </button>
           <button
-            onClick={() => setActiveTab("resources")}
+            onClick={() => scrollToSection("resources", "resources")}
             className={`transition-colors ${
               activeTab === "resources"
-                ? "text-white"
+                ? "text-white font-semibold"
                 : "text-zinc-400 hover:text-white"
             }`}
           >
             Resources
           </button>
           <button
-            onClick={() => setActiveTab("faq")}
-            className={`transition-colors ${
+            onClick={() => scrollToSection("faq", "faq")}
+            className={`transition-colors focus-visible:outline-none focus-visible:text-white ${
               activeTab === "faq"
-                ? "text-white"
+                ? "text-white font-semibold"
                 : "text-zinc-400 hover:text-white"
             }`}
           >
@@ -336,16 +368,14 @@ export default function Fluid3DTiltNav({
           </button>
         </div>
 
-        {/* Right Action Button (Urbanist SemiBold) */}
-        <button
-          onClick={() => {
-            window.location.href = "/terminal";
-          }}
-          className="font-sans bg-white text-black font-semibold text-[13px] tracking-[-0.02em] px-4 sm:px-5 py-1.5 sm:py-2 rounded-full hover:bg-zinc-200 active:scale-95 transition-all shadow-[0_2px_8px_rgba(0,0,0,0.2)] whitespace-nowrap relative z-10"
+        {/* Right Action Link (Urbanist SemiBold) */}
+        <Link
+          href="/terminal"
+          className="font-sans bg-white text-black font-semibold text-[13px] tracking-[-0.02em] px-4 sm:px-5 py-1.5 sm:py-2 rounded-full hover:bg-zinc-200 active:scale-95 transition-all shadow-[0_2px_8px_rgba(0,0,0,0.2)] whitespace-nowrap relative z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00FFA3]"
           style={{ transform: "translateZ(12px)" }}
         >
           Terminal
-        </button>
+        </Link>
       </nav>
     </header>
   );

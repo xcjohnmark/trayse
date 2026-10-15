@@ -119,6 +119,11 @@ export function TradingViewChart({
     time: string | null;
   }>({ price: null, time: null });
 
+  const onCrosshairMoveRef = useRef(onCrosshairMove);
+  useEffect(() => {
+    onCrosshairMoveRef.current = onCrosshairMove;
+  });
+
   useEffect(() => {
     if (!containerRef.current) return;
 
@@ -222,14 +227,14 @@ export function TradingViewChart({
     chart.subscribeCrosshairMove((param) => {
       if (!param.point || !param.time || !seriesRef.current) {
         setHoveredPoint({ price: null, time: null });
-        onCrosshairMove?.(null, null);
+        onCrosshairMoveRef.current?.(null, null);
         return;
       }
       const data = param.seriesData.get(seriesRef.current) as any;
       const priceVal = data?.value ?? data?.close ?? null;
       const dateStr = new Date((param.time as number) * 1000).toUTCString();
       setHoveredPoint({ price: priceVal, time: dateStr });
-      onCrosshairMove?.(priceVal, dateStr);
+      onCrosshairMoveRef.current?.(priceVal, dateStr);
     });
 
     // 4. ResizeObserver for responsive layout

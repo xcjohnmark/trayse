@@ -149,7 +149,7 @@ export const useTerminalStore = create<TerminalState>()(
       activeRail: "DUAL",
       activeVenueTab: "ALL",
       oddsFormat: "PROBABILITY",
-      activeCategory: "All",
+      activeCategory: "Trending",
       searchQuery: "",
       selectedPairId: null,
       isSidebarCollapsed: false,

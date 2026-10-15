@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { NormalizedMarketPair, MarketCategory, SubMarketOutcome } from "@/lib/types/terminal";
 
-export const revalidate = 30; // 30-second edge revalidation
+export const revalidate = 15; // 15-second edge revalidation for high-frequency sync
 
 interface PolymarketGammaEvent {
   id: string;
@@ -14,6 +14,8 @@ interface PolymarketGammaEvent {
   volume?: number;
   liquidity?: number;
   endDate?: string;
+  closed?: boolean;
+  active?: boolean;
   tags?: Array<{ label: string; slug: string }>;
   markets?: Array<{
     id: string;
@@ -32,6 +34,7 @@ interface PolymarketGammaEvent {
     liquidity?: number;
     closed?: boolean;
     active?: boolean;
+    oneDayPriceChange?: number;
   }>;
 }
 
@@ -40,109 +43,116 @@ function mapTagToCategory(tags?: Array<{ label: string; slug: string }>, title?:
   const titleStr = (title || "").toLowerCase();
   const text = `${tagStr} ${titleStr}`;
 
-  // 1. Physical & Weather (check tags and keywords first)
-  const isWeatherTag = tags?.some((t) => {
-    const s = t.slug.toLowerCase();
-    return s === "weather" || s === "climate" || s === "natural-disasters" || s === "hurricanes" || s === "earthquakes";
-  });
+  // 1. Iran
   if (
-    isWeatherTag ||
+    tags?.some((t) => t.slug.toLowerCase().includes("iran")) ||
+    /\b(iran|tehran|khamenei|irgc|israel-iran)\b/i.test(text)
+  ) {
+    return "Iran";
+  }
+
+  // 2. Mentions
+  if (
+    tags?.some((t) => ["mention-markets", "elon-tweets", "tweets-markets", "tweet"].includes(t.slug.toLowerCase())) ||
+    text.includes("what will elon post") ||
+    text.includes("what will trump say") ||
+    text.includes("what will trump post") ||
+    text.includes("what will the announcers say") ||
+    /\b(mention|mentions|tweet|tweets|truth social)\b/i.test(text)
+  ) {
+    return "Mentions";
+  }
+
+  // 3. Esports
+  if (
+    tags?.some((t) => ["esports", "league-of-legends", "dota", "cs2", "counter-strike"].includes(t.slug.toLowerCase())) ||
+    /\b(esport|esports|cblol|lck|lpl|lec|lcs|dota|cs2|counter-strike|overwatch|valorant)\b/i.test(text)
+  ) {
+    return "Esports";
+  }
+
+  // 4. Culture
+  if (
+    tags?.some((t) => ["pop-culture", "culture", "entertainment", "movies", "music", "box-office", "oscars"].includes(t.slug.toLowerCase())) ||
+    /\b(movie|box office|grammy|oscar|celebrity|album|hollywood|netflix|spotify|billboard)\b/i.test(text)
+  ) {
+    return "Culture";
+  }
+
+  // 5. Weather
+  if (
+    tags?.some((t) => ["weather", "climate", "natural-disasters", "hurricanes", "earthquakes"].includes(t.slug.toLowerCase())) ||
     /\b(weather|hurricane|hurricanes|temperature|temperatures|climate|earthquake|earthquakes|volcano|tornado|drought|snow|rain|rainfall|storm|wildfire|blizzard)\b/i.test(text) ||
     text.includes("hottest year") ||
     text.includes("el niño") ||
     text.includes("natural disaster")
   ) {
-    return "Physical & Weather";
+    return "Weather";
   }
 
-  // 2. Crypto
+  // 6. Crypto
   if (
     tags?.some((t) => ["crypto", "bitcoin", "ethereum", "solana", "altcoins"].includes(t.slug.toLowerCase())) ||
-    text.includes("crypto") ||
-    text.includes("bitcoin") ||
-    text.includes("btc") ||
-    text.includes("ethereum") ||
-    text.includes("eth") ||
-    text.includes("solana") ||
-    text.includes("token") ||
-    text.includes("altcoin")
+    /\b(crypto|bitcoin|btc|ethereum|eth|solana|sol|token|altcoin|memecoin)\b/i.test(text)
   ) {
     return "Crypto";
   }
 
-  // 3. Sports
+  // 7. Elections
   if (
-    tags?.some((t) => ["sports", "nba", "nfl", "soccer", "champions-league", "premier-league", "tennis", "formula-1", "baseball", "cricket"].includes(t.slug.toLowerCase())) ||
+    tags?.some((t) => ["elections", "election"].includes(t.slug.toLowerCase())) ||
+    /\b(election|presidential election|midterm|midterms|senate race|governor race|vote share)\b/i.test(text) ||
+    text.includes("next french presidential") ||
+    text.includes("presidential-election")
+  ) {
+    return "Elections";
+  }
+
+  // 8. Geopolitics
+  if (
+    tags?.some((t) => ["geopolitics", "world", "war"].includes(t.slug.toLowerCase())) ||
+    /\b(geopolitic|geopolitics|ceasefire|nato|taiwan|ukraine|russia|military clash|un security)\b/i.test(text)
+  ) {
+    return "Geopolitics";
+  }
+
+  // 9. Finance
+  if (
+    tags?.some((t) => ["finance", "business", "commodities", "oil"].includes(t.slug.toLowerCase())) ||
+    /\b(crude oil|wti|treasury|bonds|stock|nasdaq|s&p|sp500|dow jones|yield|ipo|oil hit)\b/i.test(text)
+  ) {
+    return "Finance";
+  }
+
+  // 10. Economy
+  if (
+    tags?.some((t) => ["economy", "macro", "fed", "cpi"].includes(t.slug.toLowerCase())) ||
+    /\b(fed |rate cut|rate hike|inflation|cpi|interest rate|recession|unemployment|gdp|central bank)\b/i.test(text)
+  ) {
+    return "Economy";
+  }
+
+  // 11. Tech
+  if (
+    tags?.some((t) => ["tech", "ai", "science", "big-tech"].includes(t.slug.toLowerCase())) ||
+    /\b(ai |artificial intelligence|openai|anthropic|nvidia|apple|spacex|tesla|google|microsoft|quantum|semiconductor|robot)\b/i.test(text)
+  ) {
+    return "Tech";
+  }
+
+  // 12. Sports
+  if (
+    tags?.some((t) => ["sports", "nba", "nfl", "soccer", "cfb", "premier-league", "tennis", "baseball"].includes(t.slug.toLowerCase())) ||
     text.includes("vs.") ||
-    text.includes("nba") ||
-    text.includes("nfl") ||
-    text.includes("premier league") ||
-    text.includes("champions league") ||
-    text.includes("uefa") ||
-    text.includes("fifa") ||
-    text.includes("fc ") ||
-    text.includes("serie a") ||
-    text.includes("laliga") ||
-    text.includes("bundesliga") ||
-    text.includes("super bowl") ||
-    text.includes("playoffs")
+    /\b(nfl|cfb|nba|soccer|premier league|champions league|uefa|fifa|serie a|laliga|bundesliga|ufc|super bowl|playoffs|atp|wta)\b/i.test(text)
   ) {
     return "Sports";
   }
 
-  // 4. Macro & Finance
+  // 13. Politics
   if (
-    tags?.some((t) => ["economy", "finance", "business", "fed", "macro"].includes(t.slug.toLowerCase())) ||
-    text.includes("fed ") ||
-    text.includes("rate cut") ||
-    text.includes("rate hike") ||
-    text.includes("inflation") ||
-    text.includes("gdp") ||
-    text.includes("economy") ||
-    text.includes("cpi") ||
-    text.includes("interest rate") ||
-    text.includes("recession") ||
-    text.includes("unemployment") ||
-    text.includes("central bank")
-  ) {
-    return "Macro";
-  }
-
-  // 5. Tech & Science
-  if (
-    tags?.some((t) => ["tech", "science", "ai", "spacex", "openai"].includes(t.slug.toLowerCase())) ||
-    text.includes("spacex") ||
-    text.includes("starship") ||
-    text.includes("ai ") ||
-    text.includes("artificial intelligence") ||
-    text.includes("openai") ||
-    text.includes("nvidia") ||
-    text.includes("apple") ||
-    text.includes("tesla") ||
-    text.includes("google") ||
-    text.includes("quantum") ||
-    text.includes("robot") ||
-    text.includes("nasa") ||
-    text.includes("moon landing")
-  ) {
-    return "Tech & Equities";
-  }
-
-  // 6. Politics
-  if (
-    tags?.some((t) => ["politics", "elections", "geopolitics", "world"].includes(t.slug.toLowerCase())) ||
-    text.includes("politic") ||
-    text.includes("elect") ||
-    text.includes("president") ||
-    text.includes("senate") ||
-    text.includes("house of representatives") ||
-    text.includes("trump") ||
-    text.includes("biden") ||
-    text.includes("macron") ||
-    text.includes("prime minister") ||
-    text.includes("congress") ||
-    text.includes("ceasefire") ||
-    text.includes("nato")
+    tags?.some((t) => ["politics", "white-house", "congress"].includes(t.slug.toLowerCase())) ||
+    /\b(politic|politics|president|senate|congress|house of representatives|trump|biden|macron|kamala|vance)\b/i.test(text)
   ) {
     return "Politics";
   }
@@ -150,59 +160,247 @@ function mapTagToCategory(tags?: Array<{ label: string; slug: string }>, title?:
   return "Politics";
 }
 
+function isEventResolved(event: PolymarketGammaEvent): boolean {
+  // 1. Explicit closed or inactive flags on event
+  if (event.closed === true || event.active === false) return true;
+
+  // 2. End date in the past (e.g. yesterday's sporting events or past elections)
+  if (event.endDate) {
+    const endMs = new Date(event.endDate).getTime();
+    if (!isNaN(endMs) && endMs <= Date.now()) return true;
+  }
+
+  // 3. Markets array validation
+  if (!event.markets || event.markets.length === 0) return true;
+  const activeUnclosed = event.markets.filter((m) => {
+    if (m.closed === true || m.active === false) return false;
+    // Check if prices already settled to 0.0 or 1.0 terminal state
+    try {
+      if (m.outcomePrices) {
+        const prices = JSON.parse(m.outcomePrices);
+        if (Array.isArray(prices) && prices.length >= 2) {
+          const p0 = Number(prices[0]);
+          const p1 = Number(prices[1]);
+          if ((p0 >= 0.999 && p1 <= 0.001) || (p0 <= 0.001 && p1 >= 0.999)) {
+            return false;
+          }
+        }
+      }
+    } catch {
+      // Ignore parse errors
+    }
+    return true;
+  });
+
+  return activeUnclosed.length === 0;
+}
+
+function formatTimeToResolution(endDateStr?: string): { timeToResolution: string; isUrgentResolution: boolean } {
+  if (!endDateStr) return { timeToResolution: "Active", isUrgentResolution: false };
+  const endMs = new Date(endDateStr).getTime();
+  if (isNaN(endMs)) return { timeToResolution: "Active", isUrgentResolution: false };
+
+  const diffMs = endMs - Date.now();
+  if (diffMs <= 0) return { timeToResolution: "Expired", isUrgentResolution: true };
+
+  const totalMinutes = Math.floor(diffMs / 60000);
+  const totalHours = Math.floor(totalMinutes / 60);
+  const days = Math.floor(totalHours / 24);
+  const remainingHours = totalHours % 24;
+  const remainingMinutes = totalMinutes % 60;
+
+  if (days >= 30) {
+    const months = Math.floor(days / 30);
+    const remDays = days % 30;
+    return { timeToResolution: `${months}mo ${remDays}d`, isUrgentResolution: false };
+  }
+  if (days > 0) {
+    return { timeToResolution: `${days}d ${remainingHours}h`, isUrgentResolution: days <= 1 };
+  }
+  if (totalHours > 0) {
+    return { timeToResolution: `${totalHours}h ${remainingMinutes}m`, isUrgentResolution: true };
+  }
+  return { timeToResolution: `${totalMinutes}m`, isUrgentResolution: true };
+}
+
+function calculateActivityScore(volume24h: number, liquidityUsd: number, oneDayPriceChange?: number): number {
+  const volScore = Math.min(100, (Math.log(1 + Math.max(0, volume24h)) / Math.log(1 + 10_000_000)) * 100);
+  const absPriceChange = Math.abs(oneDayPriceChange ?? 0);
+  const volatilityScore = Math.min(100, absPriceChange * 200);
+  const liqScore = Math.min(100, (Math.log(1 + Math.max(0, liquidityUsd)) / Math.log(1 + 1_000_000)) * 100);
+  const composite = 0.40 * volScore + 0.35 * volatilityScore + 0.25 * liqScore;
+  return Math.round(Math.min(100, Math.max(0, composite)));
+}
+
+function calculateCompositeTrendingScore(
+  volume24h: number,
+  liquidityUsd: number,
+  oneDayPriceChange?: number,
+  spreadCents?: number
+): number {
+  // Volume score (0-100)
+  const volScore = Math.min(100, (Math.log(1 + Math.max(0, volume24h)) / Math.log(1 + 10_000_000)) * 100);
+  // Real-time price velocity / volatility score (0-100)
+  const absPriceChange = Math.abs(oneDayPriceChange ?? 0);
+  const velocityScore = Math.min(100, absPriceChange * 250 + (volume24h > 200_000 ? 15 : 0));
+  // Spread score: tighter spread = higher institutional score
+  const spread = spreadCents ?? 0.01;
+  const spreadScore = Math.max(0, Math.min(100, 100 - spread * 1000));
+  // Liquidity depth score (0-100)
+  const liqScore = Math.min(100, (Math.log(1 + Math.max(0, liquidityUsd)) / Math.log(1 + 1_000_000)) * 100);
+
+  // Balanced composite: 35% Volume, 35% Activity/Volatility, 15% Spread, 15% Liquidity
+  const composite = 0.35 * volScore + 0.35 * velocityScore + 0.15 * spreadScore + 0.15 * liqScore;
+  return Math.round(Math.min(100, Math.max(0, composite)));
+}
+
+const CATEGORY_SPECS: Array<{ category: MarketCategory; slug: string }> = [
+  { category: "Politics", slug: "politics" },
+  { category: "Sports", slug: "sports" },
+  { category: "Crypto", slug: "crypto" },
+  { category: "Esports", slug: "esports" },
+  { category: "Iran", slug: "iran" },
+  { category: "Finance", slug: "finance" },
+  { category: "Geopolitics", slug: "geopolitics" },
+  { category: "Tech", slug: "tech" },
+  { category: "Culture", slug: "pop-culture" },
+  { category: "Economy", slug: "economy" },
+  { category: "Weather", slug: "weather" },
+  { category: "Elections", slug: "elections" },
+  { category: "Mentions", slug: "mention-markets" },
+];
+
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const categoryParam = searchParams.get("category") || "";
 
-    const fetchPromises: Promise<PolymarketGammaEvent[]>[] = [];
-
-    // 1. Fetch top volume / trending events across exchange
-    fetchPromises.push(
-      fetch("https://gamma-api.polymarket.com/events?closed=false&limit=60&order=volume24hr&ascending=false", {
+    // 1. Fetch global top volume leaders
+    const globalTrendingPromise = fetch(
+      "https://gamma-api.polymarket.com/events?closed=false&limit=80&order=volume24hr&ascending=false",
+      {
         cache: "no-store",
         headers: { Accept: "application/json" },
-      })
-        .then((r) => (r.ok ? r.json() : []))
-        .catch(() => [])
-    );
+      }
+    )
+      .then((r) => (r.ok ? (r.json() as Promise<PolymarketGammaEvent[]>) : []))
+      .catch(() => []);
 
-    // 2. Fetch specific category tags in parallel to guarantee rich catalogs in all sections
-    const categoryTags = [
-      "weather",
-      "climate",
-      "science",
-      "tech",
-      "crypto",
-      "politics",
-      "economy",
-      "finance",
-      "sports",
-    ];
-
-    for (const tagSlug of categoryTags) {
-      fetchPromises.push(
-        fetch(`https://gamma-api.polymarket.com/events?closed=false&limit=40&tag_slug=${tagSlug}`, {
+    // 2. Fetch top events for all 13 categories in parallel
+    const categoryPromises = CATEGORY_SPECS.map((spec) =>
+      fetch(
+        `https://gamma-api.polymarket.com/events?closed=false&limit=20&order=volume24hr&ascending=false&tag_slug=${spec.slug}`,
+        {
           cache: "no-store",
           headers: { Accept: "application/json" },
-        })
-          .then((r) => (r.ok ? r.json() : []))
-          .catch(() => [])
-      );
-    }
+        }
+      )
+        .then((r) => (r.ok ? (r.json() as Promise<PolymarketGammaEvent[]>) : []))
+        .then((events) => ({ category: spec.category, events: Array.isArray(events) ? events : [] }))
+        .catch(() => ({ category: spec.category, events: [] }))
+    );
 
-    const eventArrays = await Promise.all(fetchPromises);
-    const rawEvents = eventArrays.flat();
+    const [globalTrendingEvents, categoryResults] = await Promise.all([
+      globalTrendingPromise,
+      Promise.all(categoryPromises),
+    ]);
 
-    // Deduplicate by event.id
-    const seenEventIds = new Set<string>();
-    const events: PolymarketGammaEvent[] = [];
-    for (const ev of rawEvents) {
-      if (ev && ev.id && !seenEventIds.has(ev.id)) {
-        seenEventIds.add(ev.id);
-        events.push(ev);
+    // Filter out all resolved / past / settled events across all pools
+    const activeGlobalEvents = globalTrendingEvents.filter((ev) => !isEventResolved(ev));
+    const activeCategoryResults = categoryResults.map((cr) => ({
+      category: cr.category,
+      events: cr.events.filter((ev) => !isEventResolved(ev)),
+    }));
+
+    // Balanced Stratified Reservoir Selection:
+    // Pass 1: Guarantee top 2 active unique leaders per category (13 * 2 = 26 events guaranteed)
+    const selectedTrendingMap = new Map<string, PolymarketGammaEvent>();
+
+    for (const cr of activeCategoryResults) {
+      for (const ev of cr.events.slice(0, 2)) {
+        if (ev && ev.id && !selectedTrendingMap.has(ev.id)) {
+          selectedTrendingMap.set(ev.id, ev);
+        }
       }
     }
+
+    // Pass 2: Aggregate all candidate unclosed events
+    const allCandidateEvents = [
+      ...activeGlobalEvents,
+      ...activeCategoryResults.flatMap((cr) => cr.events),
+    ];
+
+    const seenCandidateIds = new Set<string>();
+    const sortedCandidates: PolymarketGammaEvent[] = [];
+    for (const ev of allCandidateEvents) {
+      if (ev && ev.id && !seenCandidateIds.has(ev.id)) {
+        seenCandidateIds.add(ev.id);
+        sortedCandidates.push(ev);
+      }
+    }
+
+    // Sort candidate pool by composite activity & volume score for fair representation
+    sortedCandidates.sort((a, b) => {
+      const pA = a.markets?.[0];
+      const pB = b.markets?.[0];
+      const scoreA = calculateCompositeTrendingScore(
+        a.volume24hr ?? pA?.volume24hr ?? 0,
+        a.liquidity ?? pA?.liquidity ?? 0,
+        pA?.oneDayPriceChange,
+        pA ? Math.abs((pA.bestAsk ?? 0.5) - (pA.bestBid ?? 0.5)) : 0.01
+      );
+      const scoreB = calculateCompositeTrendingScore(
+        b.volume24hr ?? pB?.volume24hr ?? 0,
+        b.liquidity ?? pB?.liquidity ?? 0,
+        pB?.oneDayPriceChange,
+        pB ? Math.abs((pB.bestAsk ?? 0.5) - (pB.bestBid ?? 0.5)) : 0.01
+      );
+      return scoreB - scoreA;
+    });
+
+    for (const ev of sortedCandidates) {
+      if (selectedTrendingMap.size >= 50) break;
+      if (!selectedTrendingMap.has(ev.id)) {
+        selectedTrendingMap.set(ev.id, ev);
+      }
+    }
+
+    // Pass 3: Sort the final 50 trending events strictly by composite score descending
+    const trending50 = Array.from(selectedTrendingMap.values());
+    trending50.sort((a, b) => {
+      const pA = a.markets?.[0];
+      const pB = b.markets?.[0];
+      const scoreA = calculateCompositeTrendingScore(
+        a.volume24hr ?? pA?.volume24hr ?? 0,
+        a.liquidity ?? pA?.liquidity ?? 0,
+        pA?.oneDayPriceChange,
+        pA ? Math.abs((pA.bestAsk ?? 0.5) - (pA.bestBid ?? 0.5)) : 0.01
+      );
+      const scoreB = calculateCompositeTrendingScore(
+        b.volume24hr ?? pB?.volume24hr ?? 0,
+        b.liquidity ?? pB?.liquidity ?? 0,
+        pB?.oneDayPriceChange,
+        pB ? Math.abs((pB.bestAsk ?? 0.5) - (pB.bestBid ?? 0.5)) : 0.01
+      );
+      return scoreB - scoreA;
+    });
+
+    // Build trending rank map (1..50)
+    const trendingRankMap = new Map<string, number>();
+    trending50.forEach((ev, idx) => {
+      trendingRankMap.set(ev.id, idx + 1);
+    });
+
+    // Final consolidated list of events: trending 50 strictly first, followed by remaining category events
+    const finalEventMap = new Map<string, PolymarketGammaEvent>();
+    trending50.forEach((ev) => finalEventMap.set(ev.id, ev));
+    sortedCandidates.forEach((ev) => {
+      if (!finalEventMap.has(ev.id)) {
+        finalEventMap.set(ev.id, ev);
+      }
+    });
+
+    const events = Array.from(finalEventMap.values());
 
     const normalizedPairs: NormalizedMarketPair[] = [];
 
@@ -283,6 +481,20 @@ export async function GET(request: Request) {
       const category = mapTagToCategory(event.tags, event.title);
       const volume24h = event.volume24hr ?? primaryMarket.volume24hr ?? 10000;
       const liquidityUsd = event.liquidity ?? primaryMarket.liquidity ?? 50000;
+      const totalVolumeUsd = Math.round(event.volume ?? (volume24h * 3.5));
+      const oneDayPriceChange = primaryMarket.oneDayPriceChange;
+      const spreadCents = Number(
+        Math.abs(
+          (primaryMarket.bestAsk ?? Math.min(0.99, Number((yesPrice + 0.01).toFixed(2)))) -
+          (primaryMarket.bestBid ?? Math.max(0.01, Number((yesPrice - 0.01).toFixed(2))))
+        ).toFixed(3)
+      );
+      const activityScore = calculateActivityScore(volume24h, liquidityUsd, oneDayPriceChange);
+      const compositeTrendingScore = calculateCompositeTrendingScore(volume24h, liquidityUsd, oneDayPriceChange, spreadCents);
+      const { timeToResolution, isUrgentResolution } = formatTimeToResolution(event.endDate);
+
+      const trendingRank = trendingRankMap.get(event.id);
+      const isTrending = trendingRank !== undefined && trendingRank <= 50;
 
       // Synthetic Kalshi counterpart for arbitrage calculation comparison
       const syntheticKalshiOffset = (Math.sin(parseInt(event.id.slice(-4) || "1", 10)) * 0.04);
@@ -296,9 +508,18 @@ export async function GET(request: Request) {
         category,
         expiryTimestamp,
         expiryDateFormatted,
+        timeToResolution,
+        isUrgentResolution,
         image: event.image,
         icon: event.icon,
         submarkets: submarkets.length > 0 ? submarkets : undefined,
+        isTrending,
+        trendingRank,
+        activityScore,
+        compositeTrendingScore,
+        oneDayPriceChange,
+        totalVolumeUsd,
+        spreadCents,
         polymarket: {
           venue: "polymarket",
           marketId: primaryMarket.id,
@@ -309,10 +530,14 @@ export async function GET(request: Request) {
           bestBid: primaryMarket.bestBid ?? Math.max(0.01, Number((yesPrice - 0.01).toFixed(2))),
           bestAsk: primaryMarket.bestAsk ?? Math.min(0.99, Number((yesPrice + 0.01).toFixed(2))),
           volume24h: Math.round(volume24h),
+          totalVolumeUsd,
+          spreadCents,
           liquidityUsd: Math.round(liquidityUsd),
           image: event.image,
           icon: event.icon,
           externalUrl: `https://polymarket.com/event/${event.slug}`,
+          oneDayPriceChange,
+          activityScore,
           orderBook: {
             bids: [
               { price: Number((yesPrice - 0.01).toFixed(2)), size: 12000, total: 12000 },
@@ -351,10 +576,14 @@ export async function GET(request: Request) {
       normalizedPairs.push(pair);
     }
 
+    const resultPairs = categoryParam === "Trending"
+      ? normalizedPairs.filter((p) => p.isTrending)
+      : normalizedPairs;
+
     return NextResponse.json({
       success: true,
-      count: normalizedPairs.length,
-      pairs: normalizedPairs,
+      count: resultPairs.length,
+      pairs: resultPairs,
     });
   } catch (error) {
     return NextResponse.json(

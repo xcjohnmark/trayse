@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
 import HeroBackground from "./HeroBackground";
 import AntigravityBackground from "./AntigravityBackground";
 import Fluid3DTiltNav from "./Fluid3DTiltNav";
@@ -22,7 +23,7 @@ export default function Hero() {
   const [activeTab, setActiveTab] = useState("explore");
 
   return (
-    <section className="relative min-h-screen w-full overflow-hidden isolate flex flex-col justify-between bg-[#111113] text-white selection:bg-[#3b40d6] selection:text-white">
+    <section className="relative min-h-screen w-full overflow-hidden isolate flex flex-col justify-between bg-[#111113] text-white selection:bg-[#00D688] selection:text-black">
       {/* 
         BACKGROUND LAYER SELECTION
         Allows seamless testing and toggling between the new Google Antigravity hover engine
@@ -68,7 +69,7 @@ export default function Hero() {
         />
 
         {/* BOTTOM SECTION: BRAND HEADLINE (LEFT) & FLOATING STRATEGY WIDGET (RIGHT) */}
-        <footer className="w-full max-w-7xl mx-auto px-6 sm:px-10 lg:px-14 pb-8 sm:pb-12 flex flex-col md:flex-row md:items-end justify-between gap-8 sm:gap-10">
+        <div className="w-full max-w-7xl mx-auto px-6 sm:px-10 lg:px-14 pb-8 sm:pb-12 flex flex-col md:flex-row md:items-end justify-between gap-8 sm:gap-10">
           {/* Left Column: Brand Eyebrow, Main Headline, and Explanatory Copy */}
           <div className="max-w-4xl lg:max-w-5xl text-left">
             {/* Brand Name Eyebrow in NewBlack Typeface (Title Case) */}
@@ -108,20 +109,18 @@ export default function Hero() {
                 Build your own strategy
               </span>
 
-              {/* CTA Button in Urbanist SemiBold (Single Line) */}
-              <button
-                onClick={() => {
-                  window.location.href = "/terminal";
-                }}
+              {/* CTA Link in Urbanist SemiBold (Single Line) */}
+              <Link
+                href="/terminal"
                 data-cursor="Launch ↗"
                 data-cursor-mode="action"
                 className="font-sans font-semibold text-[12px] sm:text-[13px] bg-white text-black px-4 sm:px-5 py-1.5 sm:py-2 rounded-full tracking-normal hover:bg-zinc-200 active:scale-95 transition-all shadow-[0_4px_14px_rgba(0,0,0,0.25)] text-center whitespace-nowrap shrink-0"
               >
                 Launch Terminal
-              </button>
+              </Link>
             </div>
           </div>
-        </footer>
+        </div>
       </div>
     </section>
   );
