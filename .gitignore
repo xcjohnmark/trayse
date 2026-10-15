@@ -20,6 +20,7 @@ image-ref/
 DESIGN_TIME_MACHINE.*
 
 # Project Specifications & Internal Docs
+logo-asset/
 build/
 project-details/
 build-tools.md
